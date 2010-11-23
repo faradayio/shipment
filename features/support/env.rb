@@ -1,6 +1,10 @@
-$LOAD_PATH.unshift(File.dirname(__FILE__) + '/../../lib')
-require 'shipment'
+require 'bundler'
+Bundler.setup
 
-require 'test/unit/assertions'
+require 'cucumber'
+require 'cucumber/formatter/unicode'
+require 'rspec'
+require 'rspec/expectations'
 
-World(Test::Unit::Assertions)
+require 'sniff'
+Sniff.init File.join(File.dirname(__FILE__), '..', '..'), :cucumber => true, :earth => [:locality, :fuel]
