@@ -18,7 +18,7 @@ Feature: Shipment Committee Calculations
     Given a shipment emitter
     When the "weight" committee is calculated
     Then the committee should have used quorum "default"
-    And the conclusion of the committee should be "99999"
+    And the conclusion of the committee should be "3.4"
   
   Scenario: Package count from nothing
     Given a shipment emitter
@@ -42,7 +42,7 @@ Feature: Shipment Committee Calculations
     Given a shipment emitter
     When the "segment_count" committee is calculated
     Then the committee should have used quorum "default"
-    And the conclusion of the committee should be "99999"
+    And the conclusion of the committee should be "5"
   
   Scenario Outline: Distance from origin zip code, destination zip code, and mode
     Given a shipment emitter
@@ -53,22 +53,19 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "from origin zip code, destination zip code, and mode"
     And the conclusion of the committee should be "<distance>"
     Examples:
-      | origin | destination | mode             | distance   |
-      | 05753  | 05753       | ground pickup    | 99999      |
-      | 05753  | 05401       | ground pickup    | 99999      |
-      | 05753  | 20860       | ground pickup    | 99999      |
-      | 05401  | 05401       | air transport    | 99999      |
-      | 05401  | 94128       | air transport    | 4133.31657 |
-      | 05401  | 20860       | air transport    | 99999      |
-      | 05401  | 05401       | ground transport | 99999      |
-      | 05401  | 94128       | ground transport | 99999      |
-      | 05401  | 20860       | ground transport | 99999      |
-      | 94128  | 94128       | ground delivery  | 99999      |
-      | 94128  | 94122       | ground delivery  | 99999      |
-      | 94128  | 20860       | ground delivery  | 99999      |
-      | 05753  | 05753       | US average       | 99999      |
-      | 05753  | 94122       | US average       | 99999      |
-      | 05753  | 20860       | US average       | 99999      |
+      | origin | destination | mode            | distance   |
+      | 05753  | 05753       | ground courrier | 99999      |
+      | 05753  | 05401       | ground courrier | 99999      |
+      | 05753  | 20860       | ground courrier | 99999      |
+      | 05401  | 05401       | air transport   | 99999      |
+      | 05401  | 94128       | air transport   | 4133.31657 |
+      | 05401  | 20860       | air transport   | 99999      |
+      | 05401  | 05401       | ground carrier  | 99999      |
+      | 05401  | 94128       | ground carrier  | 99999      |
+      | 05401  | 20860       | ground carrier  | 99999      |
+      | 05753  | 05753       | US average      | 99999      |
+      | 05753  | 94122       | US average      | 99999      |
+      | 05753  | 20860       | US average      | 99999      |
 
   Scenario Outline: Route inefficiency factor from mode
     Given a shipment emitter
@@ -77,12 +74,11 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "from mode"
     And the conclusion of the committee should be "<factor>"
     Examples:
-      | mode             | factor |
-      | ground pickup    | 5.0    |
-      | ground delivery  | 5.0    |
-      | ground transport | 1.0    |
-      | air transport    | 1.1    |
-      | US average       | 2.0    |
+      | mode            | factor |
+      | ground courrier | 5.0    |
+      | ground carrier  | 1.0    |
+      | air transport   | 1.1    |
+      | US average      | 2.0    |
 
   Scenario Outline: Dogleg factor from segment count
     Given a shipment emitter
@@ -92,9 +88,15 @@ Feature: Shipment Committee Calculations
     And the conclusion of the committee should be "<factor>"
     Examples:
       | segments | factor |
-      | 0        | 99999  |
+      | 0        | error  |
       | 1        | 1.0    |
-      | 2        | 99999  |
+      | 5        | 5.0625 |
+
+  Scenario: Adjusted distance from default
+    Given a shipment emitter
+    When the "adjusted_distance" committee is calculated
+    Then the committee should have used quorum "default"
+    And the conclusion of the committee should be "3219.0"
 
   Scenario: Adjusted distance from distance, route inefficiency factor, and dogleg factor
     Given a shipment emitter
@@ -112,31 +114,16 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "from mode"
     And the conclusion of the committee should be "<emission_factor>"
     Examples:
-      | mode             | emission_factor |
-      | ground pickup    | 2.0             |
-      | ground delivery  | 2.0             |
-      | ground transport | 1.0             |
-      | air transport    | 5.0             |
-      | US average       | 3.0             |
+      | mode            | emission_factor |
+      | ground courrier | 2.0             |
+      | ground carrier  | 1.0             |
+      | air transport   | 5.0             |
+      | US average      | 3.0             |
 
-  Scenario Outline: Intermodal emission factor from mode
-    Given a shipment emitter
-    And a characteristic "mode.name" of "<mode>"
-    When the "intermodal_emission_factor" committee is calculated
-    Then the committee should have used quorum "from mode"
-    And the conclusion of the committee should be "<emission_factor>"
-    Examples:
-      | mode             | emission_factor |
-      | ground pickup    | 0.0             |
-      | ground delivery  | 0.0             |
-      | ground transport | 10.0            |
-      | air transport    | 20.0            |
-      | US average       | 8.0             |
-
-  Scenario Outline: Corporate emission factor from shipping company
+  Scenario Outline: Intermodal and corporate emission factor from shipping company
     Given a shipment emitter
     And a characteristic "shipping_company.name" of "<name>"
-    When the "corporate_emission_factor" committee is calculated
+    When the "intermodal_and_corporate_emission_factor" committee is calculated
     Then the committee should have used quorum "from shipping company"
     And the conclusion of the committee should be "<ef>"
     Examples:
@@ -144,39 +131,37 @@ Feature: Shipment Committee Calculations
       | Federal Express | 2.0 |
       | US average      | 3.0 |
 
-  Scenario: Transport emission from weight, adjusted distance, and transport emission factor
+  Scenario Outline: Transport emission from mode, weight, adjusted distance, and transport emission factor
     Given a shipment emitter
-    And a characteristic "weight" of "2.0"
-    And a characteristic "adjusted_distance" of "100.0"
-    And a characteristic "transport_emission_factor" of "2.0"
+    And a characteristic "mode.name" of "<mode>"
+    And a characteristic "weight" of "<weight>"
+    And a characteristic "adjusted_distance" of "<adjusted_distance>"
+    And a characteristic "transport_emission_factor" of "<ef>"
     When the "transport_emission" committee is calculated
-    Then the committee should have used quorum "from weight, adjusted distance, and transport emission factor"
-    And the conclusion of the committee should be "400.0"
+    Then the committee should have used quorum "from mode, weight, adjusted distance, and transport emission factor"
+    And the conclusion of the committee should be "<emission>"
+    Examples:
+      | mode            | weight | adjusted_distance | ef  | emission |
+      | ground courrier | 2.0    | 100.0             | 2.0 | 2.0      |
+      | ground carrier  | 2.0    | 100.0             | 1.0 | 200.0    |
+      | air transport   | 2.0    | 100.0             | 5.0 | 1000.0   |
+      | US average      | 2.0    | 100.0             | 3.0 | 600.0    |
 
-  Scenario: Intermodal emission from weight and intermodal emission factor
-    Given a shipment emitter
-    And a characteristic "weight" of "2.0"
-    And a characteristic "intermodal_emission_factor" of "10.0"
-    When the "intermodal_emission" committee is calculated
-    Then the committee should have used quorum "from weight and intermodal emission factor"
-    And the conclusion of the committee should be "20.0"
-
-  Scenario: Corporate emission from package count and corporate emission factor
+  Scenario: Intermodal and corporate emission from package count and intermodal and corporate emission factor
     Given a shipment emitter
     And a characteristic "package_count" of "2"
-    And a characteristic "corporate_emission_factor" of "2.0"
-    When the "corporate_emission" committee is calculated
-    Then the committee should have used quorum "from package count and corporate emission factor"
+    And a characteristic "intermodal_and_corporate_emission_factor" of "2.0"
+    When the "intermodal_and_corporate_emission" committee is calculated
+    Then the committee should have used quorum "from package count and intermodal and corporate emission factor"
     And the conclusion of the committee should be "4.0"
 
-  Scenario: Emission from transport emission, intermodal emission, and corporate emission
+  Scenario: Emission from transport emission and intermodal and corporate emission
     Given a shipment emitter
     And a characteristic "transport_emission" of "400.0"
-    And a characteristic "intermodal_emission" of "20.0"
-    And a characteristic "corporate_emission" of "4.0"
+    And a characteristic "intermodal_and_corporate_emission" of "20.0"
     When the "emission" committee is calculated
-    Then the committee should have used quorum "from transport emission, intermodal emission, and corporate emission"
-    And the conclusion of the committee should be "424.0"
+    Then the committee should have used quorum "from transport emission and intermodal and corporate emission"
+    And the conclusion of the committee should be "420.0"
 
   # Scenario Outline: Duration from timestamps
   #   Given a shipment emitter

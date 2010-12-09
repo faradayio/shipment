@@ -25,38 +25,31 @@ module BrighterPlanet
       def self.included(base)
         base.decide :emission, :with => :characteristics do
           committee :emission do
-            quorum 'from transport emission, intermodal emission, and corporate emission', :needs => [:transport_emission, :intermodal_emission, :corporate_emission] do |characteristics|
-              characteristics[:transport_emission] + characteristics[:intermodal_emission] + characteristics[:corporate_emission]
+            quorum 'from transport emission and intermodal and corporate emission', :needs => [:transport_emission, :intermodal_and_corporate_emission] do |characteristics|
+              characteristics[:transport_emission] + characteristics[:intermodal_and_corporate_emission]
             end
           end
           
-          committee :corporate_emission do
-            quorum 'from package count and corporate emission factor', :needs => [:package_count, :corporate_emission_factor] do |characteristics|
-              characteristics[:package_count] * characteristics[:corporate_emission_factor]
-            end
-          end
-          
-          committee :intermodal_emission do
-            quorum 'from weight and intermodal emission factor', :needs => [:weight, :intermodal_emission_factor] do |characteristics|
-              characteristics[:weight] * characteristics[:intermodal_emission_factor]
+          committee :intermodal_and_corporate_emission do
+            quorum 'from package count and intermodal and corporate emission factor', :needs => [:package_count, :intermodal_and_corporate_emission_factor] do |characteristics|
+              characteristics[:package_count] * characteristics[:intermodal_and_corporate_emission_factor]
             end
           end
           
           committee :transport_emission do
-            quorum 'from weight, adjusted distance, and transport emission factor', :needs => [:weight, :adjusted_distance, :transport_emission_factor] do |characteristics|
-              characteristics[:weight] * characteristics[:adjusted_distance] * characteristics[:transport_emission_factor]
+            quorum 'from mode, weight, adjusted distance, and transport emission factor', :needs => [:mode, :weight, :adjusted_distance, :transport_emission_factor] do |characteristics|
+              # we're assuming here that the number of stops, rather than number of packages carried, is limiting factor on local delivery routes
+              if characteristics[:mode].name == "ground courrier"
+                characteristics[:transport_emission_factor]
+              else
+                characteristics[:weight] * characteristics[:adjusted_distance] * characteristics[:transport_emission_factor]
+              end
             end
           end
           
-          committee :corporate_emission_factor do
+          committee :intermodal_and_corporate_emission_factor do
             quorum 'from shipping company', :needs => :shipping_company, do |characteristics|
               characteristics[:shipping_company].corporate_emission_factor
-            end
-          end
-          
-          committee :intermodal_emission_factor do
-            quorum 'from mode', :needs => :mode, do |characteristics|
-              characteristics[:mode].intermodal_emission_factor
             end
           end
           
@@ -72,15 +65,16 @@ module BrighterPlanet
             end
             
             quorum 'default' do
-              # FIXME TODO: this is the average total adjusted distance a package travels
+              # FIXME TODO: arbitrary assumed average total adjusted shipment distance
+              3219
             end
           end
           
           committee :dogleg_factor do
-            quorum 'from segment_count', :needs => :segment_count do |characteristics|
+            quorum 'from segment count', :needs => :segment_count do |characteristics|
               if characteristics[:segment_count] > 0
-                # FIXME TODO:
-                # dogleg_factor ** (characteristics[:segment_count} - 1)
+                # FIXME TODO arbitrary assumption
+                1.5 ** (characteristics[:segment_count] - 1)
               else
                 raise "Segment count cannot be zero"
               end
@@ -96,18 +90,19 @@ module BrighterPlanet
           committee :distance do
             quorum 'from origin zip code, destination zip code, and mode', :needs => [:origin_zip_code, :destination_zip_code, :mode], do |characteristics|
               # FIXME TODO
-              # We need special calculations to deal with travel within the same zipcode
+              # At some point we will need special calculations to deal with travel within the same zipcode
               if characteristics[:mode].name == "air transport"
-                characteristics[:origin_zip_code].distance_to(characteristics[:destination_zip_code], :units => :kms)
+                characteristics[:origin_zip_code].distance_to(characteristics[:destination_zip_code], :units => :kms) * characteristics[:mode].route_inefficiency_factor
               else
-                # FIXME TODO: calculate the distance via road
+                # FIXME TODO: calculate the distance via road and multiply by characteristics[:mode].route_inefficiency_factor
               end
             end
           end
           
           committee :segment_count do
             quorum 'default' do
-              # FIXME TODO: this is the average number of segments for a shipment
+              # FIXME TODO based on the fact that FedEx has a hub-spoke system with central and regional distribution centers so seems reasonable for average package to go through four FedEx facilities
+              5
             end
           end
           
@@ -125,13 +120,15 @@ module BrighterPlanet
           
           committee :package_count do
             quorum 'default' do
+              # FIXME TODO arbitrary assumption
               1
             end
           end
           
           committee :weight do
             quorum 'default' do
-              # FIXME TODO: this is the average weight of a package
+              # FIXME TODO based on average FedEx air package weight of 7.5 lbs
+              3.4
             end
           end
         end
