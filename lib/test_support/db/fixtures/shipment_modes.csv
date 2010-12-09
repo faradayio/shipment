@@ -1,6 +1,6 @@
-name,transport_emission_factor,transport_emission_factor_units,intermodal_emission_factor,intermodal_emission_factor_units
-ground pickup,2.0,kilograms_per_kilogram_kilometre,0.0,kilograms_per_transfer
-ground transport,1.0,kilograms_per_kilogram_kilometre,10.0,kilograms_per_transfer
-ground delivery,2.0,kilograms_per_kilogram_kilometre,0.0,kilograms_per_transfer
-air transport,5.0,kilograms_per_kilogram_kilometre,20.0,kilograms_per_transfer
-US average,3.0,kilograms_per_kilogram_kilometre,8.0,kilograms_per_transfer
+name,route_inefficiency_factor,transport_emission_factor,transport_emission_factor_units,intermodal_emission_factor,intermodal_emission_factor_units
+ground pickup,5.0,2.0,kilograms_per_kilogram_kilometre,0.0,kilograms_per_transfer
+ground transport,1.0,1.0,kilograms_per_kilogram_kilometre,10.0,kilograms_per_transfer
+ground delivery,5.0,2.0,kilograms_per_kilogram_kilometre,0.0,kilograms_per_transfer
+air transport,1.1,5.0,kilograms_per_kilogram_kilometre,20.0,kilograms_per_transfer
+US average,2.0,3.0,kilograms_per_kilogram_kilometre,8.0,kilograms_per_transfer

@@ -14,11 +14,17 @@ Feature: Shipment Committee Calculations
     Figure out how to determine what portion of the total shipment emissions occurred during a timeframe
     Decide whether we want distance or intermediate emissions to depend on timeframe
   
-  Scenario: Mode from nothing
+  Scenario: Weight from nothing
     Given a shipment emitter
-    When the "mode" committee is calculated
+    When the "weight" committee is calculated
     Then the committee should have used quorum "default"
-    And the conclusion of the committee should have "name" of "US average"
+    And the conclusion of the committee should be "99999"
+  
+  Scenario: Package count from nothing
+    Given a shipment emitter
+    When the "package_count" committee is calculated
+    Then the committee should have used quorum "default"
+    And the conclusion of the committee should be "1"
   
   Scenario: Shipping company from nothing
     Given a shipment emitter
@@ -26,11 +32,17 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "default"
     And the conclusion of the committee should have "name" of "US average"
   
-  Scenario: Distance from nothing
+  Scenario: Mode from nothing
     Given a shipment emitter
-    When the "distance" committee is calculated
+    When the "mode" committee is calculated
     Then the committee should have used quorum "default"
-    And the conclusion of the committee should be "FIXME"
+    And the conclusion of the committee should have "name" of "US average"
+  
+  Scenario: Segment count from nothing
+    Given a shipment emitter
+    When the "segment_count" committee is calculated
+    Then the committee should have used quorum "default"
+    And the conclusion of the committee should be "99999"
   
   Scenario Outline: Distance from origin zip code, destination zip code, and mode
     Given a shipment emitter
@@ -38,25 +50,60 @@ Feature: Shipment Committee Calculations
     And a characteristic "destination_zip_code.name" of "<destination>"
     And a characteristic "mode.name" of "<mode>"
     When the "distance" committee is calculated
-    Then the committee should have used quorum 'from origin zip code, destination zip code, and mode'
+    Then the committee should have used quorum "from origin zip code, destination zip code, and mode"
     And the conclusion of the committee should be "<distance>"
     Examples:
-      | origin | destination | mode             | distance |
-      | 05753  | 05753       | ground pickup    | FIXME    |
-      | 05753  | 05401       | ground pickup    | FIXME    |
-      | 05401  | 05401       | air transport    | FIXME    |
-      | 05401  | 94128       | air transport    | FIXME    |
-      | 05401  | 05401       | ground transport | FIXME    |
-      | 05401  | 94128       | ground transport | FIXME    |
-      | 94128  | 94128       | ground delivery  | FIXME    |
-      | 94122  | 94122       | ground delivery  | FIXME    |
-      | 20860  | 05753       | ground pickup    | FIXME    |
-      | 20860  | 05753       | ground transport | FIXME    |
-      | 20860  | 05753       | air transport    | FIXME    |
-      | 20860  | 05753       | ground delivery  | FIXME    |
-      | 05753  | 05753       | US average       | FIXME    |
-      | 05753  | 05401       | US average       | FIXME    |
-      | 20860  | 05753       | US average       | FIXME    |
+      | origin | destination | mode             | distance   |
+      | 05753  | 05753       | ground pickup    | 99999      |
+      | 05753  | 05401       | ground pickup    | 99999      |
+      | 05753  | 20860       | ground pickup    | 99999      |
+      | 05401  | 05401       | air transport    | 99999      |
+      | 05401  | 94128       | air transport    | 4133.31657 |
+      | 05401  | 20860       | air transport    | 99999      |
+      | 05401  | 05401       | ground transport | 99999      |
+      | 05401  | 94128       | ground transport | 99999      |
+      | 05401  | 20860       | ground transport | 99999      |
+      | 94128  | 94128       | ground delivery  | 99999      |
+      | 94128  | 94122       | ground delivery  | 99999      |
+      | 94128  | 20860       | ground delivery  | 99999      |
+      | 05753  | 05753       | US average       | 99999      |
+      | 05753  | 94122       | US average       | 99999      |
+      | 05753  | 20860       | US average       | 99999      |
+
+  Scenario Outline: Route inefficiency factor from mode
+    Given a shipment emitter
+    And a characteristic "mode.name" of "<mode>"
+    When the "route_inefficiency_factor" committee is calculated
+    Then the committee should have used quorum "from mode"
+    And the conclusion of the committee should be "<factor>"
+    Examples:
+      | mode             | factor |
+      | ground pickup    | 5.0    |
+      | ground delivery  | 5.0    |
+      | ground transport | 1.0    |
+      | air transport    | 1.1    |
+      | US average       | 2.0    |
+
+  Scenario Outline: Dogleg factor from segment count
+    Given a shipment emitter
+    And a characteristic "segment_count" of "<segments>"
+    When the "dogleg_factor" committee is calculated
+    Then the committee should have used quorum "from segment count"
+    And the conclusion of the committee should be "<factor>"
+    Examples:
+      | segments | factor |
+      | 0        | 99999  |
+      | 1        | 1.0    |
+      | 2        | 99999  |
+
+  Scenario: Adjusted distance from distance, route inefficiency factor, and dogleg factor
+    Given a shipment emitter
+    And a characteristic "distance" of "100.0"
+    And a characteristic "route_inefficiency_factor" of "2.0"
+    And a characteristic "dogleg_factor" of "2.0"
+    When the "adjusted_distance" committee is calculated
+    Then the committee should have used quorum "from distance, route inefficiency factor, and dogleg factor"
+    And the conclusion of the committee should be "400.0"
 
   Scenario Outline: Transport emission factor from mode
     Given a shipment emitter
@@ -97,13 +144,13 @@ Feature: Shipment Committee Calculations
       | Federal Express | 2.0 |
       | US average      | 3.0 |
 
-  Scenario: Transport emission from weight, distance, and transport emission factor
+  Scenario: Transport emission from weight, adjusted distance, and transport emission factor
     Given a shipment emitter
     And a characteristic "weight" of "2.0"
-    And a characteristic "distance" of "100.0"
+    And a characteristic "adjusted_distance" of "100.0"
     And a characteristic "transport_emission_factor" of "2.0"
     When the "transport_emission" committee is calculated
-    Then the committee should have used quorum "from weight, distance, and transport emission factor"
+    Then the committee should have used quorum "from weight, adjusted distance, and transport emission factor"
     And the conclusion of the committee should be "400.0"
 
   Scenario: Intermodal emission from weight and intermodal emission factor

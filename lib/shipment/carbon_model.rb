@@ -24,9 +24,6 @@ module BrighterPlanet
     module CarbonModel
       def self.included(base)
         base.decide :emission, :with => :characteristics do
-          ### Emission calculation
-          # Returns the `emission` estimate (*kg CO<sub>2</sub>e*).
-          # This is the total emission produced by the shipment venue.
           committee :emission do
             quorum 'from transport emission, intermodal emission, and corporate emission', :needs => [:transport_emission, :intermodal_emission, :corporate_emission] do |characteristics|
               characteristics[:transport_emission] + characteristics[:intermodal_emission] + characteristics[:corporate_emission]
@@ -46,8 +43,8 @@ module BrighterPlanet
           end
           
           committee :transport_emission do
-            quorum 'from weight, distance, and transport emission factor', :needs => [:weight, :distance, :transport_emission_factor] do |characteristics|
-              characteristics[:weight] * characteristics[:distance] * characteristics[:transport_emission_factor]
+            quorum 'from weight, adjusted distance, and transport emission factor', :needs => [:weight, :adjusted_distance, :transport_emission_factor] do |characteristics|
+              characteristics[:weight] * characteristics[:adjusted_distance] * characteristics[:transport_emission_factor]
             end
           end
           
@@ -69,13 +66,48 @@ module BrighterPlanet
             end
           end
           
-          committee :distance do
-            quorum 'from origin zip code, destination zip code, and mode', :needs => [:origin_zip_code, :destination_zip_code, :mode], do |characteristics|
-              FIXME
+          committee :adjusted_distance do
+            quorum 'from distance, route inefficiency factor, and dogleg factor', :needs => [:distance, :route_inefficiency_factor, :dogleg_factor] do |characteristics|
+              characteristics[:distance] * characteristics[:route_inefficiency_factor] * characteristics[:dogleg_factor]
             end
             
             quorum 'default' do
-              FIXME
+              # FIXME TODO: this is the average total adjusted distance a package travels
+            end
+          end
+          
+          committee :dogleg_factor do
+            quorum 'from segment_count', :needs => :segment_count do |characteristics|
+              if characteristics[:segment_count] > 0
+                # FIXME TODO:
+                # dogleg_factor ** (characteristics[:segment_count} - 1)
+              else
+                raise "Segment count cannot be zero"
+              end
+            end
+          end
+          
+          committee :route_inefficiency_factor do
+            quorum 'from mode', :needs => :mode do |characteristics|
+              characteristics[:mode].route_inefficiency_factor
+            end
+          end
+          
+          committee :distance do
+            quorum 'from origin zip code, destination zip code, and mode', :needs => [:origin_zip_code, :destination_zip_code, :mode], do |characteristics|
+              # FIXME TODO
+              # We need special calculations to deal with travel within the same zipcode
+              if characteristics[:mode].name == "air transport"
+                characteristics[:origin_zip_code].distance_to(characteristics[:destination_zip_code], :units => :kms)
+              else
+                # FIXME TODO: calculate the distance via road
+              end
+            end
+          end
+          
+          committee :segment_count do
+            quorum 'default' do
+              # FIXME TODO: this is the average number of segments for a shipment
             end
           end
           
@@ -88,6 +120,18 @@ module BrighterPlanet
           committee :shipping_company do
             quorum 'default' do
               ShippingCompany.find_by_name 'US average'
+            end
+          end
+          
+          committee :package_count do
+            quorum 'default' do
+              1
+            end
+          end
+          
+          committee :weight do
+            quorum 'default' do
+              # FIXME TODO: this is the average weight of a package
             end
           end
         end

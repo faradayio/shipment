@@ -6,9 +6,10 @@ module BrighterPlanet
           has :weight
           has :package_count
           has :shipping_company
+          has :mode
+          has :segment_count
           has :origin_zip_code
           has :destination_zip_code
-          has :mode
         end
       end
     end
