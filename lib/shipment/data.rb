@@ -4,6 +4,12 @@ module BrighterPlanet
       def self.included(base)
         base.data_miner do
           schema do
+            float   'weight'
+            integer 'package_count'
+            string  'shipping_company_name'
+            string  'origin_zip_code_name'
+            string  'destination_zip_code_name'
+            string  'mode_name'
           end
           
           process :run_data_miner_on_belongs_to_associations

@@ -28,13 +28,66 @@ module BrighterPlanet
           # Returns the `emission` estimate (*kg CO<sub>2</sub>e*).
           # This is the total emission produced by the shipment venue.
           committee :emission do
-            #### Default emission
-            # **Complies:**
-            #
-            # Displays an error if the previous method fails.
+            quorum 'from transport emission, intermodal emission, and corporate emission', :needs => [:transport_emission, :intermodal_emission, :corporate_emission] do |characteristics|
+              characteristics[:transport_emission] + characteristics[:intermodal_emission] + characteristics[:corporate_emission]
+            end
+          end
+          
+          committee :corporate_emission do
+            quorum 'from package count and corporate emission factor', :needs => [:package_count, :corporate_emission_factor] do |characteristics|
+              characteristics[:package_count] * characteristics[:corporate_emission_factor]
+            end
+          end
+          
+          committee :intermodal_emission do
+            quorum 'from weight and intermodal emission factor', :needs => [:weight, :intermodal_emission_factor] do |characteristics|
+              characteristics[:weight] * characteristics[:intermodal_emission_factor]
+            end
+          end
+          
+          committee :transport_emission do
+            quorum 'from weight, distance, and transport emission factor', :needs => [:weight, :distance, :transport_emission_factor] do |characteristics|
+              characteristics[:weight] * characteristics[:distance] * characteristics[:transport_emission_factor]
+            end
+          end
+          
+          committee :corporate_emission_factor do
+            quorum 'from shipping company', :needs => :shipping_company, do |characteristics|
+              characteristics[:shipping_company].corporate_emission_factor
+            end
+          end
+          
+          committee :intermodal_emission_factor do
+            quorum 'from mode', :needs => :mode, do |characteristics|
+              characteristics[:mode].intermodal_emission_factor
+            end
+          end
+          
+          committee :transport_emission_factor do
+            quorum 'from mode', :needs => :mode, do |characteristics|
+              characteristics[:mode].transport_emission_factor
+            end
+          end
+          
+          committee :distance do
+            quorum 'from origin zip code, destination zip code, and mode', :needs => [:origin_zip_code, :destination_zip_code, :mode], do |characteristics|
+              FIXME
+            end
+            
             quorum 'default' do
-#              raise "The emission committee's default quorum should never be called"
-              0
+              FIXME
+            end
+          end
+          
+          committee :mode do
+            quorum 'default' do
+              ShipmentMode.find_by_name 'US average'
+            end
+          end
+          
+          committee :shipping_company do
+            quorum 'default' do
+              ShippingCompany.find_by_name 'US average'
             end
           end
         end
