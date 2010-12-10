@@ -1,5 +1,4 @@
 name,route_inefficiency_factor,transport_emission_factor,transport_emission_factor_units
-ground courrier,5.0,2.0,kilograms_per_stop
-ground carrier,1.0,1.0,kilograms_per_kilogram_kilometre
-air transport,1.1,5.0,kilograms_per_kilogram_kilometre
-US average,2.0,3.0,kilograms_per_kilogram_kilometre
+courier,5.0,2.0,kilograms_per_stop
+ground,1.0,1.0,kilograms_per_kilogram_kilometre
+air,1.1,5.0,kilograms_per_kilogram_kilometre

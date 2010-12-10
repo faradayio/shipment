@@ -5,7 +5,7 @@ module BrighterPlanet
         base.characterize do
           has :weight
           has :package_count
-          has :shipping_company
+          has :carrier
           has :mode
           has :segment_count
           has :origin_zip_code

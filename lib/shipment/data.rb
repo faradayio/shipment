@@ -6,7 +6,7 @@ module BrighterPlanet
           schema do
             float   'weight'
             integer 'package_count'
-            string  'shipping_company_name'
+            string  'carrier_name'
             string  'mode_name'
             integer 'segment_count'
             string  'origin_zip_code_name'

@@ -26,31 +26,37 @@ module BrighterPlanet
         base.decide :emission, :with => :characteristics do
           committee :emission do
             # FIXME TODO deal with timeframe
-            quorum 'from transport emission and intermodal and corporate emission', :needs => [:transport_emission, :intermodal_and_corporate_emission] do |characteristics|
-              characteristics[:transport_emission] + characteristics[:intermodal_and_corporate_emission]
+            quorum 'from transport emission and corporate emission', :needs => [:transport_emission, :corporate_emission] do |characteristics|
+              characteristics[:transport_emission] + characteristics[:corporate_emission]
             end
           end
           
-          committee :intermodal_and_corporate_emission do
-            quorum 'from package count and intermodal and corporate emission factor', :needs => [:package_count, :intermodal_and_corporate_emission_factor] do |characteristics|
-              characteristics[:package_count] * characteristics[:intermodal_and_corporate_emission_factor]
+          committee :corporate_emission do
+            quorum 'from package count and corporate emission factor', :needs => [:package_count, :corporate_emission_factor] do |characteristics|
+              if characteristics[:package_count] > 0
+                characteristics[:package_count] * characteristics[:corporate_emission_factor]
+              else
+                raise "Invalid package_count: #{:package_count} (must be > 0)"
+              end
             end
           end
           
           committee :transport_emission do
             quorum 'from mode, weight, adjusted distance, and transport emission factor', :needs => [:mode, :weight, :adjusted_distance, :transport_emission_factor] do |characteristics|
               # we're assuming here that the number of stops, rather than number of packages carried, is limiting factor on local delivery routes
-              if characteristics[:mode].name == "ground courrier"
+              if characteristics[:mode].name == "courier"
                 characteristics[:transport_emission_factor]
-              else
+              elsif characteristics[:weight] > 0
                 characteristics[:weight] * characteristics[:adjusted_distance] * characteristics[:transport_emission_factor]
+              else
+                raise "Invalid weight: #{:weight} (must be > 0)"
               end
             end
           end
           
-          committee :intermodal_and_corporate_emission_factor do
-            quorum 'from shipping company', :needs => :shipping_company, do |characteristics|
-              characteristics[:shipping_company].corporate_emission_factor
+          committee :corporate_emission_factor do
+            quorum 'from carrier', :needs => :carrier, do |characteristics|
+              characteristics[:carrier].corporate_emission_factor
             end
           end
           
@@ -77,7 +83,7 @@ module BrighterPlanet
                 # ASSUMED arbitrary
                 1.5 ** (characteristics[:segment_count] - 1)
               else
-                raise "Segment count cannot be zero"
+                raise "Invalid segment_count: #{:segment_count} (must be > 0)"
               end
             end
           end
@@ -93,6 +99,9 @@ module BrighterPlanet
               if characteristics[:origin_zip_code] == characteristics[:destination_zip_code]
                 # FIXME TODO
                 # Special calculation to deal with travel within the same zipcode
+              elsif characteristics[:origin_zip_code].latitude and characteristics[:origin_zip_code].longitude and
+                characteristics[:destination_zip_code].latitude and characteristics[:destination_zip_code].longitude
+                nil
               elsif characteristics[:mode].name == "air transport"
                 characteristics[:origin_zip_code].distance_to(characteristics[:destination_zip_code], :units => :kms)
               else
@@ -110,13 +119,13 @@ module BrighterPlanet
           
           committee :mode do
             quorum 'default' do
-              ShipmentMode.find_by_name 'US average'
+              ShipmentMode.fallback
             end
           end
           
-          committee :shipping_company do
+          committee :carrier do
             quorum 'default' do
-              ShippingCompany.find_by_name 'US average'
+              Carrier.fallback
             end
           end
           
