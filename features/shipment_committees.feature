@@ -40,25 +40,11 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "from origin zip code, destination zip code, and mode"
     And the conclusion of the committee should be "<distance>"
     Examples:
-      | origin | destination | distance   |
-      | 05753  | 05753       | 99999      |
-      | 05753  | 05401       | 99999      |
+      | origin | destination | distance |
+      | 05753  | 05753       | 0        |
+      | 05753  | 05401       | 53       |
 
-  Scenario Outline: Distance from zips without lat/lng and default mode
-    Given a shipment emitter
-    And a characteristic "origin_zip_code.name" of "<origin>"
-    And a characteristic "destination_zip_code.name" of "<destination>"
-    When the "mode" committee is calculated
-    And the "distance" committee is calculated
-    Then the committee should have used quorum "from origin zip code, destination zip code, and mode"
-    And the conclusion of the committee should be nil
-    Examples:
-      | origin | destination |
-      | 20860  | 20860       |
-      | 20860  | 05753       |
-      | 05753  | 20860       |
-
-  Scenario Outline: Distance from origin zip code, destination zip code, and mode
+  Scenario Outline: Distance from origin zip code and destination zip code
     Given a shipment emitter
     And a characteristic "origin_zip_code.name" of "<origin>"
     And a characteristic "destination_zip_code.name" of "<destination>"
@@ -68,35 +54,15 @@ Feature: Shipment Committee Calculations
     And the conclusion of the committee should be "<distance>"
     Examples:
       | origin | destination | mode    | distance   |
-      | 05753  | 05753       | courier | 99999      |
-      | 05753  | 05401       | courier | 99999      |
-      | 05753  | 20860       | courier | 99999      |
-      | 05401  | 05401       | air     | 99999      |
+      | 05753  | 05753       | courier | 0          |
+      | 05753  | 05401       | courier | 53         |
+      | 05753  | 20860       | courier | 8679       |
+      | 05401  | 05401       | air     | 0          |
       | 05401  | 94128       | air     | 4133.31657 |
-      | 05401  | 20860       | air     | 99999      |
-      | 05401  | 05401       | ground  | 99999      |
-      | 05401  | 94128       | ground  | 99999      |
-      | 05401  | 20860       | ground  | 99999      |
-
-  Scenario Outline: Distance from zips without lat/lng and mode
-    Given a shipment emitter
-    And a characteristic "origin_zip_code.name" of "<origin>"
-    And a characteristic "destination_zip_code.name" of "<destination>"
-    And a characteristic "mode.name" of "<mode>"
-    When the "distance" committee is calculated
-    Then the committee should have used quorum "from origin zip code, destination zip code, and mode"
-    And the conclusion of the committee should be nil
-    Examples:
-      | origin | destination | mode    |
-      | 20860  | 20860       | courier |
-      | 20860  | 05401       | courier |
-      | 05753  | 20860       | courier |
-      | 20860  | 20860       | air     |
-      | 20860  | 05401       | air     |
-      | 05753  | 20860       | air     |
-      | 20860  | 20860       | ground  |
-      | 20860  | 05401       | ground  |
-      | 05753  | 20860       | ground  |
+      | 05401  | 20860       | air     | 8693       |
+      | 05401  | 05401       | ground  | 0          |
+      | 05401  | 94128       | ground  | 4133       |
+      | 05401  | 20860       | ground  | 8693       |
 
   Scenario: Route inefficiency factor from nothing
     Given a shipment emitter
@@ -132,9 +98,8 @@ Feature: Shipment Committee Calculations
     And the conclusion of the committee should be "<factor>"
     Examples:
       | segments | factor |
-      | 0        | error  |
       | 1        | 1.0    |
-      | 2        | 2.25   |
+      | 2        | 1.5    |
 
   Scenario: Adjusted distance from default
     Given a shipment emitter

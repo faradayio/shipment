@@ -95,17 +95,14 @@ module BrighterPlanet
           end
           
           committee :distance do
-            quorum 'from origin zip code, destination zip code, and mode', :needs => [:origin_zip_code, :destination_zip_code, :mode], do |characteristics|
+            quorum 'from origin zip code, destination zip code, and mode', :needs => [:origin_zip_code, :destination_zip_code], do |characteristics|
               if characteristics[:origin_zip_code] == characteristics[:destination_zip_code]
                 # FIXME TODO
                 # Special calculation to deal with travel within the same zipcode
-              elsif characteristics[:origin_zip_code].latitude and characteristics[:origin_zip_code].longitude and
-                characteristics[:destination_zip_code].latitude and characteristics[:destination_zip_code].longitude
-                nil
-              elsif characteristics[:mode].name == "air transport"
-                characteristics[:origin_zip_code].distance_to(characteristics[:destination_zip_code], :units => :kms)
+                0
               else
-                # FIXME TODO: calculate the distance via road
+                characteristics[:origin_zip_code].distance_to(characteristics[:destination_zip_code], :units => :kms)
+                # FIXME TODO: calculate the distance via road using map directions
               end
             end
           end

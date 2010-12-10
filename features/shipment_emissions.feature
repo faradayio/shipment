@@ -20,8 +20,8 @@ Feature: Shipment Emissions Calculations
     Then the emission value should be within "0.1" kgs of "<emission>"
     Examples:
       | origin | destination | emission |
-      | 05401  | 05401       | 99999.9  |
-      | 05401  | 94128       | 99999.9  |
+      | 05401  | 05401       | 0.318    |
+      | 05401  | 94128       | 224106.1 |
 
   Scenario: Calculations from carrier
     Given a shipment has "carrier.name" of "FedEx"
