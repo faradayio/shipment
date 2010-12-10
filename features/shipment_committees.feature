@@ -1,19 +1,6 @@
 Feature: Shipment Committee Calculations
   The shipment model should generate correct committee calculations
 
-  Scenario: Stuff I am assuming Yaktrak takes care of
-    Yaktrak uses a "tracking_code" to fetch data from FedEx
-    This data includes "weight", "shipping_company.name", and a series of events
-    Each event includes a "zip_code"
-    Yaktrak groups the events into consecutive pairs
-    For each pair of events, Yaktrak determines whether any travel took place between the events
-    If travel did occur Yaktrak determines the "mode.name" for that travel i.e. ground pickup (from a customer location to a fedex location), ground delivery (from a fedex location to a customer location), ground transport (between two fedex locations), air transport (between two fedex locations) - I am assuming that all air is between fedex locations and that all ground travel between fedex locations is point-to-point rather than along a route
-    For each pair of events where travel occurred Yaktrak sends "weight", "shipping_company.name", "origin_zip_code", "destination_zip_code", and "mode.name" to the shipment emitter
-  
-  Scenario: Date and timeframe stuff
-    Figure out how to determine what portion of the total shipment emissions occurred during a timeframe
-    Decide whether we want distance or intermediate emissions to depend on timeframe
-  
   Scenario: Weight from nothing
     Given a shipment emitter
     When the "weight" committee is calculated
@@ -43,7 +30,7 @@ Feature: Shipment Committee Calculations
     When the "segment_count" committee is calculated
     Then the committee should have used quorum "default"
     And the conclusion of the committee should be "5"
-  
+
   Scenario Outline: Distance from origin zip code, destination zip code, and mode
     Given a shipment emitter
     And a characteristic "origin_zip_code.name" of "<origin>"
@@ -127,9 +114,9 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "from shipping company"
     And the conclusion of the committee should be "<ef>"
     Examples:
-      | name            | ef  |
-      | Federal Express | 2.0 |
-      | US average      | 3.0 |
+      | name       | ef  |
+      | FedEx      | 2.0 |
+      | US average | 3.0 |
 
   Scenario Outline: Transport emission from mode, weight, adjusted distance, and transport emission factor
     Given a shipment emitter

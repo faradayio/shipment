@@ -25,6 +25,7 @@ module BrighterPlanet
       def self.included(base)
         base.decide :emission, :with => :characteristics do
           committee :emission do
+            # FIXME TODO deal with timeframe
             quorum 'from transport emission and intermodal and corporate emission', :needs => [:transport_emission, :intermodal_and_corporate_emission] do |characteristics|
               characteristics[:transport_emission] + characteristics[:intermodal_and_corporate_emission]
             end
@@ -54,7 +55,7 @@ module BrighterPlanet
           end
           
           committee :transport_emission_factor do
-            quorum 'from mode', :needs => :mode, do |characteristics|
+            quorum 'from mode', :needs => :mode do |characteristics|
               characteristics[:mode].transport_emission_factor
             end
           end
@@ -65,15 +66,15 @@ module BrighterPlanet
             end
             
             quorum 'default' do
-              # FIXME TODO: arbitrary assumed average total adjusted shipment distance
+              # ASSUMED: arbitrary
               3219
             end
           end
-          
+            
           committee :dogleg_factor do
             quorum 'from segment count', :needs => :segment_count do |characteristics|
               if characteristics[:segment_count] > 0
-                # FIXME TODO arbitrary assumption
+                # ASSUMED arbitrary
                 1.5 ** (characteristics[:segment_count] - 1)
               else
                 raise "Segment count cannot be zero"
@@ -89,19 +90,20 @@ module BrighterPlanet
           
           committee :distance do
             quorum 'from origin zip code, destination zip code, and mode', :needs => [:origin_zip_code, :destination_zip_code, :mode], do |characteristics|
-              # FIXME TODO
-              # At some point we will need special calculations to deal with travel within the same zipcode
-              if characteristics[:mode].name == "air transport"
-                characteristics[:origin_zip_code].distance_to(characteristics[:destination_zip_code], :units => :kms) * characteristics[:mode].route_inefficiency_factor
+              if characteristics[:origin_zip_code] == characteristics[:destination_zip_code]
+                # FIXME TODO
+                # Special calculation to deal with travel within the same zipcode
+              elsif characteristics[:mode].name == "air transport"
+                characteristics[:origin_zip_code].distance_to(characteristics[:destination_zip_code], :units => :kms)
               else
-                # FIXME TODO: calculate the distance via road and multiply by characteristics[:mode].route_inefficiency_factor
+                # FIXME TODO: calculate the distance via road
               end
             end
           end
           
           committee :segment_count do
             quorum 'default' do
-              # FIXME TODO based on the fact that FedEx has a hub-spoke system with central and regional distribution centers so seems reasonable for average package to go through four FedEx facilities
+              # ASSUMED based on the fact that FedEx has a hub-spoke system with central and regional distribution centers so seems reasonable for average package to go through four FedEx facilities
               5
             end
           end
@@ -120,14 +122,14 @@ module BrighterPlanet
           
           committee :package_count do
             quorum 'default' do
-              # FIXME TODO arbitrary assumption
+              # ASSUMED arbitrary
               1
             end
           end
           
           committee :weight do
             quorum 'default' do
-              # FIXME TODO based on average FedEx air package weight of 7.5 lbs
+              # ASSUMED based on average FedEx air package weight of 7.5 lbs
               3.4
             end
           end
