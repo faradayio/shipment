@@ -31,38 +31,28 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "default"
     And the conclusion of the committee should be "5"
 
-  Scenario Outline: Distance from origin zip code, destination zip code, and default mode
+  Scenario Outline: Distance from origin zip code and destination zip code
     Given a shipment emitter
     And a characteristic "origin_zip_code.name" of "<origin>"
     And a characteristic "destination_zip_code.name" of "<destination>"
-    When the "mode" committee is calculated
-    And the "distance" committee is calculated
-    Then the committee should have used quorum "from origin zip code, destination zip code, and mode"
+    When the "distance" committee is calculated
+    Then the committee should have used quorum "from origin zip code and destination zip code"
     And the conclusion of the committee should be "<distance>"
     Examples:
       | origin | destination | distance |
       | 05753  | 05753       | 0        |
       | 05753  | 05401       | 53       |
 
-  Scenario Outline: Distance from origin zip code and destination zip code
+  Scenario Outline: Distance from zip codes not in database or missing lat/lng
     Given a shipment emitter
     And a characteristic "origin_zip_code.name" of "<origin>"
     And a characteristic "destination_zip_code.name" of "<destination>"
-    And a characteristic "mode.name" of "<mode>"
     When the "distance" committee is calculated
-    Then the committee should have used quorum "from origin zip code, destination zip code, and mode"
-    And the conclusion of the committee should be "<distance>"
+    Then the conclusion of the committee should be nil
     Examples:
-      | origin | destination | mode    | distance   |
-      | 05753  | 05753       | courier | 0          |
-      | 05753  | 05401       | courier | 53         |
-      | 05753  | 20860       | courier | 8679       |
-      | 05401  | 05401       | air     | 0          |
-      | 05401  | 94128       | air     | 4133.31657 |
-      | 05401  | 20860       | air     | 8693       |
-      | 05401  | 05401       | ground  | 0          |
-      | 05401  | 94128       | ground  | 4133       |
-      | 05401  | 20860       | ground  | 8693       |
+      | origin | destination |
+      | 05753  | 20860       |
+      | 05753  | 99999       |
 
   Scenario: Route inefficiency factor from nothing
     Given a shipment emitter
@@ -121,7 +111,7 @@ Feature: Shipment Committee Calculations
     When the "mode" committee is calculated
     And the "transport_emission_factor" committee is calculated
     Then the committee should have used quorum "from mode"
-    And the conclusion of the committee should be "3.0"
+    And the conclusion of the committee should be "0.00076955"
 
   Scenario Outline: Transport emission factor from mode
     Given a shipment emitter
@@ -140,7 +130,7 @@ Feature: Shipment Committee Calculations
     When the "carrier" committee is calculated
     And the "corporate_emission_factor" committee is calculated
     Then the committee should have used quorum "from carrier"
-    And the conclusion of the committee should be "2.0"
+    And the conclusion of the committee should be "0.318"
 
   Scenario: Corporate emission factor from carrier
     Given a shipment emitter
@@ -149,7 +139,7 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "from carrier"
     And the conclusion of the committee should be "2.0"
 
-  Scenario Outline: Transport emission from defaults
+  Scenario: Transport emission from defaults
     Given a shipment emitter
     When the "weight" committee is calculated
     And the "mode" committee is calculated
@@ -157,7 +147,7 @@ Feature: Shipment Committee Calculations
     And the "transport_emission_factor" committee is calculated
     And the "transport_emission" committee is calculated
     Then the committee should have used quorum "from mode, weight, adjusted distance, and transport emission factor"
-    And the conclusion of the committee should be "600.0"
+    And the conclusion of the committee should be "8.42296"
 
   Scenario Outline: Transport emission from mode, weight, adjusted distance, and transport emission factor
     Given a shipment emitter

@@ -1,9 +1,8 @@
 PATH
   remote: .
   specs:
-    shipment (0.0.1)
-      earth (~> 0.3.7)
-      emitter (~> 0.3.0)
+    shipment (0.0.2)
+      earth (~> 0.3.8)
       emitter (~> 0.3.0)
 
 GEM
@@ -56,22 +55,14 @@ GEM
       remote_table (~> 0.2.32)
       taps (>= 0.3.11)
     diff-lcs (1.1.2)
-    earth (0.3.7)
-      activerecord (~> 3)
+    earth (0.3.8)
       activerecord (~> 3)
       cohort_scope (>= 0.0.7)
-      cohort_scope (>= 0.0.7)
-      conversions (>= 1.4.5)
       conversions (>= 1.4.5)
       data_miner (~> 0.5.6)
-      data_miner (~> 0.5.6)
-      falls_back_on (>= 0.0.3)
       falls_back_on (>= 0.0.3)
       geokit (>= 1.5.0)
-      geokit (>= 1.5.0)
       loose_tight_dictionary (>= 0.0.8)
-      loose_tight_dictionary (>= 0.0.8)
-      weighted_average (>= 0.0.4)
       weighted_average (>= 0.0.4)
     emitter (0.3.2)
       activesupport (~> 3)
@@ -206,7 +197,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord (~> 3.0.1)
   bundler (~> 1.0.0)
-  earth (~> 0.3.7)
+  earth (~> 0.3.8)
   emitter (~> 0.3.0)
   rake
   shipment!
