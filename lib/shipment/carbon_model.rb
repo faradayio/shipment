@@ -76,14 +76,14 @@ module BrighterPlanet
               3219
             end
           end
-            
+          
           committee :dogleg_factor do
-            quorum 'from segment count', :needs => :segment_count do |characteristics|
-              if characteristics[:segment_count] > 0
-                # ASSUMED arbitrary
-                1.5 ** (characteristics[:segment_count] - 1)
+            quorum 'from segment count', :appreciates => :segment_count do |characteristics|
+              if characteristics[:segment_count] == 1
+                1.0
               else
-                raise "Invalid segment_count: #{:segment_count} (must be > 0)"
+                # based on our sample FedEx tracking numbers
+                1.8
               end
             end
           end
@@ -100,7 +100,7 @@ module BrighterPlanet
               if characteristics[:origin_zip_code] and characteristics[:destination_zip_code]
                 if characteristics[:origin_zip_code] == characteristics[:destination_zip_code]
                   # FIXME TODO
-                  # Special calculation to deal with travel within the same zipcode
+                  # Special calculation to deal attr_writer :attr_nameswith travel within the same zipcode
                   0
                 # Ensure we have the lat/lng for both origin and destination
                 elsif characteristics[:origin_zip_code].latitude and characteristics[:origin_zip_code].longitude and
@@ -113,13 +113,6 @@ module BrighterPlanet
               else
                 nil
               end
-            end
-          end
-          
-          committee :segment_count do
-            quorum 'default' do
-              # ASSUMED based on the fact that FedEx has a hub-spoke system with central and regional distribution centers so seems reasonable for average package to go through four FedEx facilities
-              5
             end
           end
           
