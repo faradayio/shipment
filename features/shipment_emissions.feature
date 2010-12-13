@@ -14,15 +14,14 @@ Feature: Shipment Emissions Calculations
     Then the emission value should be within "0.1" kgs of "25.4"
 
   Scenario Outline: Calculations from origin/destination
-    Given a shipment has "origin_zip_code.name" of "<origin>"
-    And it has "destination_zip_code.name" of "<destination>"
-    And mapquest determines the distance to be "<distance>"
+    Given a shipment has "origin" of "<origin>"
+    And it has "destination" of "<destination>"
     When emissions are calculated
     Then the emission value should be within "0.1" kgs of "<emission>"
     Examples:
-      | origin | destination | mapquest_distance | emission |
-      | 05401  | 05401       |                   | 0.3      |
-      | 05401  | 94128       | 30                | 20.8     |
+      | origin | destination                          | emission |
+      | 05401  | 488 Haight Street, San Francisco, CA | 57.74974 |
+      | 05401  | Canterbury, Kent, UK                 | 74.82651 |
 
   Scenario: Calculations from carrier
     Given a shipment has "carrier.name" of "FedEx"
@@ -41,15 +40,15 @@ Feature: Shipment Emissions Calculations
 
   Scenario Outline: Calculations from mode and origin/destination
     Given a shipment has "mode.name" of "<mode>"
-    And it has "origin_zip_code.name" of "<origin>"
-    And it has "destination_zip_code.name" of "<destination>"
+    And it has "origin" of "<origin>"
+    And it has "destination" of "<destination>"
     When emissions are calculated
     Then the emission value should be within "0.1" kgs of "<emission>"
     Examples:
-      | mode    | origin | destination | emission |
-      | courier | 05401  | 05401       | 2.3      |
-      | ground  | 05401  | 05401       | 0.3      |
-      | air     | 05401  | 05401       | 0.3      |
-      | courier | 05401  | 94128       | 2.3      |
-      | ground  | 05401  | 94128       | 71145.0  |
-      | air     | 05401  | 94128       | 391296.2 |
+      | mode    | origin | destination                                   | emission     |
+      | courier | 05753  | Address: 488 Haight Street, San Francisco, CA | 2.318        |
+      | courier | 05753  | Address: Canterbury, Kent, UK                 | 2.318        |
+      | ground  | 05753  | Address: 488 Haight Street, San Francisco, CA | 71283.88938  |
+      | ground  | 05753  | Address: Canterbury, Kent, UK                 | 92673.96537  |
+      | air     | 05753  | Address: 488 Haight Street, San Francisco, CA | 392059.96060 |
+      | air     | 05753  | Address: Canterbury, Kent, UK                 | 509705.37857 |

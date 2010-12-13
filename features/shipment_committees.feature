@@ -13,18 +13,6 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "default"
     And the conclusion of the committee should be "1"
   
-  Scenario: Carrier from nothing
-    Given a shipment emitter
-    When the "carrier" committee is calculated
-    Then the committee should have used quorum "default"
-    And the conclusion of the committee should be a fallback
-  
-  Scenario: Mode from nothing
-    Given a shipment emitter
-    When the "mode" committee is calculated
-    Then the committee should have used quorum "default"
-    And the conclusion of the committee should be a fallback
-
   Scenario: Segment count from nothing
     Given a shipment emitter
     When the "segment_count" committee is calculated
@@ -33,23 +21,26 @@ Feature: Shipment Committee Calculations
 
   Scenario Outline: Distance from same locality
     Given a shipment emitter
-    And a characteristic "origin_zip_code.name" of "<origin>"
-    And a characteristic "destination_zip_code.name" of "<destination>"
-    When the "distance" committee is calculated
+    And a characteristic "origin" of "<origin>"
+    And a characteristic "destination" of "<destination>"
+    When the "origin_location" committee is calculated
+    And the "destination_location" committee is calculated
+    And the "distance" committee is calculated
     Then the conclusion of the committee should be "<distance>"
     Examples:
       | origin | destination | distance |
       | 05753  | 05753       | 0        |
-      | 05753  | 05401       |          |
   
   Scenario Outline: Distance from mapquest
     Given a shipment emitter
-    And a characteristic "origin_zip_code.name" of "<origin>"
-    And a characteristic "destination_zip_code.name" of "<destination>"
+    And a characteristic "origin" of "<origin>"
+    And a characteristic "destination" of "<destination>"
     And a characteristic "mode.name" of "ground"
     And a characteristic "mapquest_api_key" of "ABC123"
     And mapquest determines the distance to be "<mapquest_distance>"
-    When the "distance" committee is calculated
+    When the "origin_location" committee is calculated
+    And the "destination_location" committee is calculated
+    And the "distance" committee is calculated
     Then the committee should have used quorum "from mapquest"
     And the conclusion of the committee should be "<distance>"
     Examples:
@@ -59,33 +50,62 @@ Feature: Shipment Committee Calculations
 
   Scenario Outline: Distance from direct path
     Given a shipment emitter
-    And a characteristic "origin_zip_code.name" of "<origin>"
-    And a characteristic "destination_zip_code.name" of "<destination>"
+    And a characteristic "origin" of "<origin>"
+    And a characteristic "destination" of "<destination>"
     And a characteristic "mode.name" of "air"
     And a characteristic "mapquest_api_key" of "ABC123"
-    When the "distance" committee is calculated
+    When the "origin_location" committee is calculated
+    And the "destination_location" committee is calculated
+    And the "distance" committee is calculated
     Then the committee should have used quorum "from direct path"
     And the conclusion of the committee should be "<distance>"
     Examples:
-      | origin | destination | distance |
-      | 05753  | 05401       | 53       |
-
-  Scenario Outline: Distance from zip codes not in database or missing lat/lng
+      | origin      | destination          | distance   |
+      | 05753       | San Francisco, CA    | 4140.39274 |
+      | Lansing, MI | Canterbury, Kent, UK | 6192.60039 |
+      | 05753       | Canterbury, Kent, UK | 5384.08989 |
+  
+  Scenario Outline: Origin location from origin
     Given a shipment emitter
-    And a characteristic "origin_zip_code.name" of "<origin>"
-    And a characteristic "destination_zip_code.name" of "<destination>"
-    When the "distance" committee is calculated
-    Then the conclusion of the committee should be nil
+    And a characteristic "origin" of "<origin>"
+    When the "origin_location" committee is calculated
+    Then the committee should have used quorum "from origin"
+    And the conclusion of the committee should be "<location>"
     Examples:
-      | origin | destination |
-      | 05753  | 20860       |
-      | 05753  | 99999       |
-
-  Scenario: Route inefficiency factor from nothing
+      | origin                                         | location                |
+      | 05753                                          | 43.9968185,-73.1491165  |
+      | Address: San Francisco, CA                     | 37.7749295,-122.4194155 |
+      | Address: 488 Haight Street, San Francisco, CA  | 37.7721568,-122.4302295 |
+      | Address: Canterbury, Kent, UK                  | 51.2772689,1.0805173    |
+  
+  Scenario Outline: Destination location from destination
     Given a shipment emitter
-    When the "mode" committee is calculated
-    And the "route_inefficiency_factor" committee is calculated
-    Then the committee should have used quorum "from mode"
+    And a characteristic "destination" of "<destination>"
+    When the "destination_location" committee is calculated
+    Then the committee should have used quorum "from destination"
+    And the conclusion of the committee should be "<location>"
+    Examples:
+      | destination                                    | location                |
+      | 05753                                          | 43.9968185,-73.1491165  |
+      | Address: 488 Haight Street, San Francisco, CA  | 37.7721568,-122.4302295 |
+      | Address: Canterbury, Kent, UK                  | 51.2772689,1.0805173    |
+  
+  Scenario: Origin committee from uncodable origin
+    Given a shipment emitter
+    And a characteristic "origin" of "Bag End, Hobbiton, Westfarthing, The Shire, Eriador, Middle Earth"
+    When the "origin_location" committee is calculated
+    Then the conclusion of the committee should be nil
+  
+  Scenario: Destination committee from uncodable destination
+    Given a shipment emitter
+    And a characteristic "destination" of "Bag End, Hobbiton, Westfarthing, The Shire, Eriador, Middle Earth"
+    When the "destination_location" committee is calculated
+    Then the conclusion of the committee should be nil
+
+  Scenario: Route inefficiency factor from default
+    Given a shipment emitter
+    When the "route_inefficiency_factor" committee is calculated
+    Then the committee should have used quorum "default"
     And the conclusion of the committee should be "1.05"
 
   Scenario Outline: Route inefficiency factor from mode
@@ -133,30 +153,30 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "from distance, route inefficiency factor, and dogleg factor"
     And the conclusion of the committee should be "400.0"
 
-  Scenario: Transport emission factor from default mode
+  Scenario: Transport emission factor from default
     Given a shipment emitter
-    When the "mode" committee is calculated
-    And the "transport_emission_factor" committee is calculated
-    Then the committee should have used quorum "from mode"
+    When the "transport_emission_factor" committee is calculated
+    Then the committee should have used quorum "default"
     And the conclusion of the committee should be "0.00076955"
 
-  Scenario Outline: Transport emission factor from mode
+  Scenario Outline: Transport emission factor from mode, weight, and adjusted distance
     Given a shipment emitter
     And a characteristic "mode.name" of "<mode>"
+    And a characteristic "weight" of "<weight>"
+    And a characteristic "adjusted_distance" of "<adjusted_distance>"
     When the "transport_emission_factor" committee is calculated
-    Then the committee should have used quorum "from mode"
+    Then the committee should have used quorum "from mode, weight, and adjusted distance"
     And the conclusion of the committee should be "<emission_factor>"
     Examples:
-      | mode    | emission_factor |
-      | courier | 2.0             |
-      | ground  | 1.0             |
-      | air     | 5.0             |
+      | mode    | weight | adjusted_distance | emission_factor |
+      | courier | 2.0    | 5.0               | 0.2             |
+      | ground  | 2.0    | 50.0              | 1.0             |
+      | air     | 2.0    | 50.0              | 5.0             |
 
-  Scenario: Corporate emission factor from default carrier
+  Scenario: Corporate emission factor from default
     Given a shipment emitter
-    When the "carrier" committee is calculated
-    And the "corporate_emission_factor" committee is calculated
-    Then the committee should have used quorum "from carrier"
+    When the "corporate_emission_factor" committee is calculated
+    Then the committee should have used quorum "default"
     And the conclusion of the committee should be "0.318"
 
   Scenario: Corporate emission factor from carrier
@@ -166,30 +186,14 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "from carrier"
     And the conclusion of the committee should be "2.0"
 
-  Scenario: Transport emission from defaults
+  Scenario: Transport emission from weight, adjusted distance, and transport emission factor
     Given a shipment emitter
-    When the "weight" committee is calculated
-    And the "mode" committee is calculated
-    And the "adjusted_distance" committee is calculated
-    And the "transport_emission_factor" committee is calculated
-    And the "transport_emission" committee is calculated
-    Then the committee should have used quorum "from mode, weight, adjusted distance, and transport emission factor"
-    And the conclusion of the committee should be "8.42296"
-
-  Scenario Outline: Transport emission from mode, weight, adjusted distance, and transport emission factor
-    Given a shipment emitter
-    And a characteristic "mode.name" of "<mode>"
-    And a characteristic "weight" of "<weight>"
-    And a characteristic "adjusted_distance" of "<adjusted_distance>"
-    And a characteristic "transport_emission_factor" of "<ef>"
+    And a characteristic "weight" of "2.0"
+    And a characteristic "adjusted_distance" of "100.0"
+    And a characteristic "transport_emission_factor" of "2.0"
     When the "transport_emission" committee is calculated
-    Then the committee should have used quorum "from mode, weight, adjusted distance, and transport emission factor"
-    And the conclusion of the committee should be "<emission>"
-    Examples:
-      | mode    | weight | adjusted_distance | ef  | emission |
-      | courier | 2.0    | 100.0             | 2.0 | 2.0      |
-      | ground  | 2.0    | 100.0             | 1.0 | 200.0    |
-      | air     | 2.0    | 100.0             | 5.0 | 1000.0   |
+    Then the committee should have used quorum "from weight, adjusted distance, and transport emission factor"
+    And the conclusion of the committee should be "400.0"
 
   Scenario: Corporate emission from package count and corporate emission factor
     Given a shipment emitter
@@ -206,18 +210,3 @@ Feature: Shipment Committee Calculations
     When the "emission" committee is calculated
     Then the committee should have used quorum "from transport emission and corporate emission"
     And the conclusion of the committee should be "420.0"
-
-  # Scenario Outline: Duration from timestamps
-  #   Given a shipment emitter
-  #   And a characteristic "origin_timestamp" of "<origin>"
-  #   And a characteristic "destination_timestamp" of "<destination>"
-  #   When the "duration" committee is calculated
-  #   Then the committee should have used quorum "from timestamps"
-  #   And the conclusion of the committee should be "<duration>"
-  #   Examples:
-  #     | origin                    | destination               | duration |
-  #     | 2010-01-01T00:00:00Z      | 2010-01-02T01:30:00Z      | 01:30:00 | same timezone
-  #     | 2010-01-01T00:00:00Z      | 2010-01-02T09:30:00+08:00 | 01:30:00 | different timezones
-  #     | 2010-01-01T00:00:00Z      | 2009-12-31T20:30:00-05:00 | 01:30:00 | timezone change causes different days
-  #     | 2010-01-01T12:00:00+12:00 | 2009-12-31T13:30:00-12:00 | 01:30:00 | cross intl date line eastwards
-  #     | 2010-01-01T12:00:00-12:00 | 2009-01-02T13:30:00+12:00 | 01:30:00 | cross intl date line westwards

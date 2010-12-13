@@ -9,8 +9,8 @@ module BrighterPlanet
             string  'carrier_name'
             string  'mode_name'
             integer 'segment_count'
-            string  'origin_zip_code_name'
-            string  'destination_zip_code_name'
+            string  'origin'
+            string  'destination'
             string  'mapquest_api_key'
           end
           

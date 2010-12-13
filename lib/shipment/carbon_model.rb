@@ -3,6 +3,7 @@
 # Contact Brighter Planet for dual-license arrangements.
 
 require File.expand_path('../../vendor/plugin/mapquest/lib/mapquest_directions', File.dirname(__FILE__))
+require 'geokit'
 
 ## Shipment carbon model
 # This model is used by [Brighter Planet](http://brighterplanet.com)'s carbon emission [web service](http://carbon.brighterplanet.com) to estimate the **greenhouse gas emissions of a shipment** (e.g. a FedEx package).
@@ -44,14 +45,12 @@ module BrighterPlanet
           end
           
           committee :transport_emission do
-            quorum 'from mode, weight, adjusted distance, and transport emission factor', :needs => [:mode, :weight, :adjusted_distance, :transport_emission_factor] do |characteristics|
+            quorum 'from weight, adjusted distance, and transport emission factor', :needs => [:weight, :adjusted_distance, :transport_emission_factor] do |characteristics|
               # we're assuming here that the number of stops, rather than number of packages carried, is limiting factor on local delivery routes
-              if characteristics[:mode].name == "courier"
-                characteristics[:transport_emission_factor]
-              elsif characteristics[:weight] > 0
+              if characteristics[:weight] > 0
                 characteristics[:weight] * characteristics[:adjusted_distance] * characteristics[:transport_emission_factor]
               else
-                raise "Invalid weight: #{:weight} (must be > 0)"
+                raise "Invalid weight: :weight (must be > 0)"
               end
             end
           end
@@ -60,11 +59,23 @@ module BrighterPlanet
             quorum 'from carrier', :needs => :carrier, do |characteristics|
               characteristics[:carrier].corporate_emission_factor
             end
+            
+            quorum 'default' do
+              Carrier.fallback.corporate_emission_factor
+            end
           end
           
           committee :transport_emission_factor do
-            quorum 'from mode', :needs => :mode do |characteristics|
-              characteristics[:mode].transport_emission_factor
+            quorum 'from mode, weight, and adjusted distance', :needs => [:mode, :weight, :adjusted_distance] do |characteristics|
+              if characteristics[:mode].name == "courier"
+                characteristics[:mode].transport_emission_factor / (characteristics[:weight] * characteristics[:adjusted_distance])
+              else
+                characteristics[:mode].transport_emission_factor
+              end
+            end
+            
+            quorum 'default' do
+              ShipmentMode.fallback.transport_emission_factor
             end
           end
           
@@ -74,8 +85,7 @@ module BrighterPlanet
             end
             
             quorum 'default' do
-              # ASSUMED: arbitrary
-              3219
+              3219 # ASSUMED: arbitrary
             end
           end
             
@@ -85,7 +95,7 @@ module BrighterPlanet
                 # ASSUMED arbitrary
                 1.5 ** (characteristics[:segment_count] - 1)
               else
-                raise "Invalid segment_count: #{:segment_count} (must be > 0)"
+                1.8 # based on our sample FedEx tracking numbers
               end
             end
           end
@@ -94,26 +104,31 @@ module BrighterPlanet
             quorum 'from mode', :needs => :mode do |characteristics|
               characteristics[:mode].route_inefficiency_factor
             end
+            
+            quorum 'default' do
+              ShipmentMode.fallback.route_inefficiency_factor
+            end
           end
           
           committee :distance do
-            quorum 'from same locality', :needs => [:origin_zip_code, :destination_zip_code] do |characteristics|
-              if characteristics[:origin_zip_code] == characteristics[:destination_zip_code]
+            quorum 'from same locality', :needs => [:origin_location, :destination_location] do |characteristics|
+              if characteristics[:origin_location] == characteristics[:destination_location]
                 0
-              else
-                nil
               end
             end
-            quorum 'from mapquest', :needs => [:origin_zip_code, :destination_zip_code, :mode, :mapquest_api_key] do |characteristics|
+            quorum 'from mapquest', :needs => [:origin_location, :destination_location, :mode, :mapquest_api_key] do |characteristics|
               unless characteristics[:mode].name == 'air'
-                mapquest = MapQuestDirections.new characteristics[:origin_zip_code].name,
-                                                  characteristics[:destination_zip_code].name,
+                mapquest = MapQuestDirections.new characteristics[:origin_location],
+                                                  characteristics[:destination_location],
                                                   characteristics[:mapquest_api_key]
                 mapquest.distance_in_miles
               end
             end
-            quorum 'from direct path', :needs => [:origin_zip_code, :destination_zip_code, :mode] do |characteristics|
-              characteristics[:origin_zip_code].distance_to(characteristics[:destination_zip_code], :units => :kms)
+            quorum 'from direct path', :needs => [:origin_location, :destination_location] do |characteristics|
+              Mapper.distance_between(
+                characteristics[:origin_location],
+                characteristics[:destination_location],
+                :units => :kms)
             end
           end
           
@@ -124,29 +139,29 @@ module BrighterPlanet
             end
           end
           
-          committee :mode do
-            quorum 'default' do
-              ShipmentMode.fallback
+          committee :destination_location do
+            quorum 'from destination', :needs => :destination do |characteristics|
+              code = Geokit::Geocoders::MultiGeocoder.geocode characteristics[:destination].to_s
+              code.ll == ',' ? nil : code.ll
             end
           end
           
-          committee :carrier do
-            quorum 'default' do
-              Carrier.fallback
+          committee :origin_location do
+            quorum 'from origin', :needs => :origin do |characteristics|
+              code = Geokit::Geocoders::MultiGeocoder.geocode characteristics[:origin].to_s
+              code.ll == ',' ? nil : code.ll
             end
           end
           
           committee :package_count do
             quorum 'default' do
-              # ASSUMED arbitrary
-              1
+              1 # ASSUMED arbitrary
             end
           end
           
           committee :weight do
             quorum 'default' do
-              # ASSUMED based on average FedEx air package weight of 7.5 lbs
-              3.4
+              3.4 # ASSUMED based on average FedEx air package weight of 7.5 lbs
             end
           end
 
@@ -156,6 +171,10 @@ module BrighterPlanet
             end
           end
         end
+      end
+
+      class Mapper
+        include Geokit::Mappable
       end
     end
   end

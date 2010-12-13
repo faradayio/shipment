@@ -8,4 +8,4 @@ require 'rspec/expectations'
 require 'cucumber/rspec/doubles'
 
 require 'sniff'
-Sniff.init File.join(File.dirname(__FILE__), '..', '..'), :cucumber => true, :earth => [:locality, :shipping]
+Sniff.init File.join(File.dirname(__FILE__), '..', '..'), :cucumber => true, :earth => [:shipping]
