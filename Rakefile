@@ -35,7 +35,8 @@ require_or_fail('jeweler', 'Jeweler (or a dependency) not available. Install it 
       Dir.glob(File.join('lib', '**','*.rb'))
     gem.test_files = Dir.glob(File.join('features', '**', '*.rb')) +
       Dir.glob(File.join('features', '**', '*.feature')) +
-      Dir.glob(File.join('lib', 'test_support', '**/*.rb'))
+      Dir.glob(File.join('lib', 'test_support', '**/*.rb')) +
+      Dir.glob(File.join('vendor', '**/*.rb'))
     gem.add_development_dependency 'activerecord', '~>3.0.1'
     gem.add_development_dependency 'bundler', '~>1.0.0'
     gem.add_development_dependency 'rake'
