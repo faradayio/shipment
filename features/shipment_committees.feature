@@ -25,6 +25,12 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "default"
     And the conclusion of the committee should be a fallback
 
+  Scenario: Segment count from nothing
+    Given a shipment emitter
+    When the "segment_count" committee is calculated
+    Then the committee should have used quorum "default"
+    And the conclusion of the committee should be "5"
+
   Scenario Outline: Distance from same locality
     Given a shipment emitter
     And a characteristic "origin_zip_code.name" of "<origin>"
@@ -94,23 +100,23 @@ Feature: Shipment Committee Calculations
       | ground  | 1.0    |
       | air     | 1.1    |
 
-  Scenario: Dogleg factor from default segment
+  Scenario: Dogleg factor from default segment count
     Given a shipment emitter
-    When the "dogleg_factor" committee is calculated
-    Then the committee should have used quorum "from segment"
-    And the conclusion of the committee should be "1.8"
+    When the "segment_count" committee is calculated
+    And the "dogleg_factor" committee is calculated
+    Then the committee should have used quorum "from segment count"
+    And the conclusion of the committee should be "5.0625"
 
-  Scenario Outline: Dogleg factor from segment
+  Scenario Outline: Dogleg factor from segment count
     Given a shipment emitter
-    And a characteristic "segment" of "<segment>"
+    And a characteristic "segment_count" of "<segments>"
     When the "dogleg_factor" committee is calculated
-    Then the committee should have used quorum "from segment"
+    Then the committee should have used quorum "from segment count"
     And the conclusion of the committee should be "<factor>"
     Examples:
-      | segment | factor |
-      | true    | 1.0    |
-      | false   | 1.8    |
-      | asdfgh  | 1.8    |
+      | segments | factor |
+      | 1        | 1.0    |
+      | 2        | 1.5    |
 
   Scenario: Adjusted distance from default
     Given a shipment emitter

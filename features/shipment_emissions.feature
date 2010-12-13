@@ -6,10 +6,10 @@ Feature: Shipment Emissions Calculations
     When emissions are calculated
     Then the emission value should be within "0.1" kgs of "8.7"
 
-  Scenario: Calculations from weight, package count and segment
+  Scenario: Calculations from weight, package count, segment count
     Given a shipment has "weight" of "10"
     And it has "package_count" of "2"
-    And it has "segment" of "true"
+    And it has "segment_count" of "1"
     When emissions are calculated
     Then the emission value should be within "0.1" kgs of "25.4"
 
@@ -51,5 +51,5 @@ Feature: Shipment Emissions Calculations
       | ground  | 05401  | 05401       | 0.3      |
       | air     | 05401  | 05401       | 0.3      |
       | courier | 05401  | 94128       | 2.3      |
-      | ground  | 05401  | 94128       | 25296.2  |
-      | air     | 05401  | 94128       | 139127.8 |
+      | ground  | 05401  | 94128       | 71145.0  |
+      | air     | 05401  | 94128       | 391296.2 |

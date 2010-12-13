@@ -78,14 +78,14 @@ module BrighterPlanet
               3219
             end
           end
-          
+            
           committee :dogleg_factor do
-            quorum 'from segment', :appreciates => :segment do |characteristics|
-              if characteristics[:segment] == true
-                1.0
+            quorum 'from segment count', :needs => :segment_count do |characteristics|
+              if characteristics[:segment_count] > 0
+                # ASSUMED arbitrary
+                1.5 ** (characteristics[:segment_count] - 1)
               else
-                # based on our sample FedEx tracking numbers
-                1.8
+                raise "Invalid segment_count: #{:segment_count} (must be > 0)"
               end
             end
           end
@@ -116,7 +116,14 @@ module BrighterPlanet
               characteristics[:origin_zip_code].distance_to(characteristics[:destination_zip_code], :units => :kms)
             end
           end
-
+          
+          committee :segment_count do
+            quorum 'default' do
+              # ASSUMED based on the fact that FedEx has a hub-spoke system with central and regional distribution centers so seems reasonable for average package to go through four FedEx facilities
+              5
+            end
+          end
+          
           committee :mode do
             quorum 'default' do
               ShipmentMode.fallback
