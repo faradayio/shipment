@@ -1,0 +1,3 @@
+[submodule "mapquest"]
+  path = vendor/plugin/mapquest
+  url = git@github.com:dkastner/MapQuest-Directions-Ruby.git
