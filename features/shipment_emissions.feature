@@ -6,7 +6,7 @@ Feature: Shipment Emissions Calculations
     When emissions are calculated
     Then the emission value should be within "0.1" kgs of "8.7"
 
-  Scenario: Calculations from weight, package count and segment count
+  Scenario: Calculations from weight, package count and segment
     Given a shipment has "weight" of "10"
     And it has "package_count" of "2"
     And it has "segment" of "true"

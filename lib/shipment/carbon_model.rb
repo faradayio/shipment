@@ -80,8 +80,8 @@ module BrighterPlanet
           end
           
           committee :dogleg_factor do
-            quorum 'from segment count', :appreciates => :segment_count do |characteristics|
-              if characteristics[:segment_count] == 1
+            quorum 'from segment', :appreciates => :segment do |characteristics|
+              if characteristics[:segment] == true
                 1.0
               else
                 # based on our sample FedEx tracking numbers
