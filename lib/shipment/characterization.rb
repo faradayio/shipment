@@ -7,7 +7,7 @@ module BrighterPlanet
           has :package_count
           has :carrier
           has :mode
-          has :segment_count
+          has :segment
           has :origin_zip_code
           has :destination_zip_code
           has :mapquest_api_key, :display => lambda { |key| "secret key" }
