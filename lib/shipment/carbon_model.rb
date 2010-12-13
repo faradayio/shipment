@@ -2,6 +2,8 @@
 # See LICENSE for details.
 # Contact Brighter Planet for dual-license arrangements.
 
+require File.expand_path('../../vendor/plugin/mapquest/lib/mapquest_directions', File.dirname(__FILE__))
+
 ## Shipment carbon model
 # This model is used by [Brighter Planet](http://brighterplanet.com)'s carbon emission [web service](http://carbon.brighterplanet.com) to estimate the **greenhouse gas emissions of a shipment** (e.g. a FedEx package).
 #
@@ -95,27 +97,26 @@ module BrighterPlanet
           end
           
           committee :distance do
-            quorum 'from origin zip code and destination zip code', :needs => [:origin_zip_code, :destination_zip_code], do |characteristics|
-              # Ensure both the origin and destination zip codes are in our database
-              if characteristics[:origin_zip_code] and characteristics[:destination_zip_code]
-                if characteristics[:origin_zip_code] == characteristics[:destination_zip_code]
-                  # FIXME TODO
-                  # Special calculation to deal attr_writer :attr_nameswith travel within the same zipcode
-                  0
-                # Ensure we have the lat/lng for both origin and destination
-                elsif characteristics[:origin_zip_code].latitude and characteristics[:origin_zip_code].longitude and
-                  characteristics[:destination_zip_code].latitude and characteristics[:destination_zip_code].longitude
-                    characteristics[:origin_zip_code].distance_to(characteristics[:destination_zip_code], :units => :kms)
-                    # FIXME TODO: calculate the distance via road using map directions
-                else
-                  nil
-                end
+            quorum 'from same locality', :needs => [:origin_zip_code, :destination_zip_code] do |characteristics|
+              if characteristics[:origin_zip_code] == characteristics[:destination_zip_code]
+                0
               else
                 nil
               end
             end
+            quorum 'from mapquest', :needs => [:origin_zip_code, :destination_zip_code, :mode, :mapquest_api_key] do |characteristics|
+              unless characteristics[:mode].name == 'air'
+                mapquest = MapQuestDirections.new characteristics[:origin_zip_code].name,
+                                                  characteristics[:destination_zip_code].name,
+                                                  characteristics[:mapquest_api_key]
+                mapquest.distance_in_miles
+              end
+            end
+            quorum 'from direct path', :needs => [:origin_zip_code, :destination_zip_code, :mode] do |characteristics|
+              characteristics[:origin_zip_code].distance_to(characteristics[:destination_zip_code], :units => :kms)
+            end
           end
-          
+
           committee :mode do
             quorum 'default' do
               ShipmentMode.fallback
@@ -139,6 +140,12 @@ module BrighterPlanet
             quorum 'default' do
               # ASSUMED based on average FedEx air package weight of 7.5 lbs
               3.4
+            end
+          end
+
+          committee :mapquest_api_key do
+            quorum 'default' do
+              ENV['MAPQUEST_API_KEY']
             end
           end
         end

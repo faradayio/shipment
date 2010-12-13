@@ -16,12 +16,13 @@ Feature: Shipment Emissions Calculations
   Scenario Outline: Calculations from origin/destination
     Given a shipment has "origin_zip_code.name" of "<origin>"
     And it has "destination_zip_code.name" of "<destination>"
+    And mapquest determines the distance to be "<distance>"
     When emissions are calculated
     Then the emission value should be within "0.1" kgs of "<emission>"
     Examples:
-      | origin | destination | emission |
-      | 05401  | 05401       | 0.3      |
-      | 05401  | 94128       | 20.8     |
+      | origin | destination | mapquest_distance | emission |
+      | 05401  | 05401       |                   | 0.3      |
+      | 05401  | 94128       | 30                | 20.8     |
 
   Scenario: Calculations from carrier
     Given a shipment has "carrier.name" of "FedEx"

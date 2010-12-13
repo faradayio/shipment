@@ -24,17 +24,44 @@ Feature: Shipment Committee Calculations
     When the "mode" committee is calculated
     Then the committee should have used quorum "default"
     And the conclusion of the committee should be a fallback
-  
-  Scenario Outline: Distance from origin zip code and destination zip code
+
+  Scenario Outline: Distance from same locality
     Given a shipment emitter
     And a characteristic "origin_zip_code.name" of "<origin>"
     And a characteristic "destination_zip_code.name" of "<destination>"
     When the "distance" committee is calculated
-    Then the committee should have used quorum "from origin zip code and destination zip code"
-    And the conclusion of the committee should be "<distance>"
+    Then the conclusion of the committee should be "<distance>"
     Examples:
       | origin | destination | distance |
       | 05753  | 05753       | 0        |
+      | 05753  | 05401       |          |
+  
+  Scenario Outline: Distance from mapquest
+    Given a shipment emitter
+    And a characteristic "origin_zip_code.name" of "<origin>"
+    And a characteristic "destination_zip_code.name" of "<destination>"
+    And a characteristic "mode.name" of "ground"
+    And a characteristic "mapquest_api_key" of "ABC123"
+    And mapquest determines the distance to be "<mapquest_distance>"
+    When the "distance" committee is calculated
+    Then the committee should have used quorum "from mapquest"
+    And the conclusion of the committee should be "<distance>"
+    Examples:
+      | origin | destination | mapquest_distance | distance |
+      | 05753  | 05401       | 53                | 53       |
+      | 05753  | 05401       | 33                | 33       |
+
+  Scenario Outline: Distance from direct path
+    Given a shipment emitter
+    And a characteristic "origin_zip_code.name" of "<origin>"
+    And a characteristic "destination_zip_code.name" of "<destination>"
+    And a characteristic "mode.name" of "air"
+    And a characteristic "mapquest_api_key" of "ABC123"
+    When the "distance" committee is calculated
+    Then the committee should have used quorum "from direct path"
+    And the conclusion of the committee should be "<distance>"
+    Examples:
+      | origin | destination | distance |
       | 05753  | 05401       | 53       |
 
   Scenario Outline: Distance from zip codes not in database or missing lat/lng
