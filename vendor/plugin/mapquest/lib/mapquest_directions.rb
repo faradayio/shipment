@@ -1,5 +1,6 @@
 require 'net/http'
 require 'nokogiri'
+require 'uri'
 
 class MapQuestDirections
   class Failure < StandardError; end
@@ -7,7 +8,7 @@ class MapQuestDirections
   attr_accessor :location_1, :location_2, :xml_call, :doc
   
   def initialize(location_1, location_2, api_key)
-    @base_url = "http://www.mapquestapi.com/directions/v1/route?key=#{api_key}&outFormat=xml&"    
+    @base_url = "http://www.mapquestapi.com/directions/v1/route?key=#{URI.escape(api_key)}&outFormat=xml&"    
     @location_1 = location_1
     @location_2 = location_2
     options = "from=#{transcribe(@location_1)}&to=#{transcribe(@location_2)}"

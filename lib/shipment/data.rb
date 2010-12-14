@@ -11,6 +11,7 @@ module BrighterPlanet
             integer 'segment_count'
             string  'origin_zip_code_name'
             string  'destination_zip_code_name'
+            string  'mapquest_api_key'
           end
           
           process :run_data_miner_on_belongs_to_associations
