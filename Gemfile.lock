@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    shipment (0.0.4)
+    shipment (0.0.5)
       earth (~> 0.3.8)
       emitter (~> 0.3.0)
 
