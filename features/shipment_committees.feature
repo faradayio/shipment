@@ -77,6 +77,16 @@ Feature: Shipment Committee Calculations
       | Address: San Francisco, CA                     | 37.7749295,-122.4194155 |
       | Address: 488 Haight Street, San Francisco, CA  | 37.7721568,-122.4302295 |
       | Address: Canterbury, Kent, UK                  | 51.2772689,1.0805173    |
+
+  Scenario Outline: Origin location from origin_zip_code
+    Given a shipment emitter
+    And a characteristic "origin_zip_code" of "<origin>"
+    When the "origin" committee is calculated
+    And the "origin_location" committee is calculated
+    Then the conclusion of the committee should be "<location>"
+    Examples:
+      | origin                                         | location                |
+      | 05753                                          | 43.9968185,-73.1491165  |
   
   Scenario Outline: Destination location from destination
     Given a shipment emitter
@@ -90,6 +100,16 @@ Feature: Shipment Committee Calculations
       | Address: 488 Haight Street, San Francisco, CA  | 37.7721568,-122.4302295 |
       | Address: Canterbury, Kent, UK                  | 51.2772689,1.0805173    |
   
+  Scenario Outline: Destination location from destination_zip_code
+    Given a shipment emitter
+    And a characteristic "destination_zip_code" of "<destination>"
+    When the "destination" committee is calculated
+    And the "destination_location" committee is calculated
+    Then the conclusion of the committee should be "<location>"
+    Examples:
+      | destination | location                |
+      | 05753       | 43.9968185,-73.1491165  |
+
   Scenario: Origin committee from uncodable origin
     Given a shipment emitter
     And a characteristic "origin" of "Bag End, Hobbiton, Westfarthing, The Shire, Eriador, Middle Earth"

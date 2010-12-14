@@ -11,6 +11,8 @@ module BrighterPlanet
             integer 'segment_count'
             string  'origin'
             string  'destination'
+            string  'origin_zip_code'
+            string  'destination_zip_code'
             string  'mapquest_api_key'
           end
           

@@ -145,11 +145,23 @@ module BrighterPlanet
               code.ll == ',' ? nil : code.ll
             end
           end
+
+          committee :destination do
+            quorum 'from destination_zip_code', :needs => :destination_zip_code do |characteristics|
+              characteristics[:destination_zip_code]
+            end
+          end
           
           committee :origin_location do
             quorum 'from origin', :needs => :origin do |characteristics|
               code = Geokit::Geocoders::MultiGeocoder.geocode characteristics[:origin].to_s
               code.ll == ',' ? nil : code.ll
+            end
+          end
+
+          committee :origin do
+            quorum 'from origin_zip_code', :needs => :origin_zip_code do |characteristics|
+              characteristics[:origin_zip_code]
             end
           end
           
