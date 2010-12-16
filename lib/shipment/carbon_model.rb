@@ -148,6 +148,7 @@ module BrighterPlanet
 
           committee :destination do
             quorum 'from destination_zip_code', :needs => :destination_zip_code do |characteristics|
+            # For backwards compatability
               characteristics[:destination_zip_code]
             end
           end
@@ -161,6 +162,7 @@ module BrighterPlanet
 
           committee :origin do
             quorum 'from origin_zip_code', :needs => :origin_zip_code do |characteristics|
+            # For backwards compatability
               characteristics[:origin_zip_code]
             end
           end
