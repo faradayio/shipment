@@ -41,6 +41,74 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "from package count"
     And the conclusion of the committee should be "2"
 
+  Scenario Outline: Origin from zip code
+    Given a shipment emitter
+    And a characteristic "origin_zip_code" of "<zip>"
+    When the "origin" committee is calculated
+    Then the committee should have used quorum "from origin zip code"
+    And the conclusion of the committee should be "<origin>"
+    Examples:
+      | zip   | origin |
+      | 05753 | 05753  |
+      | 00000 | 00000  |
+
+  Scenario Outline: Origin location from goecodeable origin
+    Given a shipment emitter
+    And a characteristic "origin" of "<origin>"
+    When the "origin_location" committee is calculated
+    Then the committee should have used quorum "from origin"
+    And the conclusion of the committee should be "<location>"
+    Examples:
+      | origin                                        | location                |
+      | 05753                                         | 43.9968185,-73.1491165  |
+      | San Francisco, CA                             | 37.7749295,-122.4194155 |
+      | Address: 488 Haight Street, San Francisco, CA | 37.7721568,-122.4302295 |
+      | Canterbury, Kent, UK                          | 51.2772689,1.0805173    |
+
+  Scenario Outline: Origin location from non-geocodeable origin
+    Given a shipment emitter
+    And a characteristic "origin" of "<origin>"
+    When the "origin_location" committee is calculated
+    Then the conclusion of the committee should be nil
+    Examples:
+      | origin                                                            |
+      | 00000                                                             |
+      | Bag End, Hobbiton, Westfarthing, The Shire, Eriador, Middle Earth |
+
+  Scenario Outline: Destination from zip code
+    Given a shipment emitter
+    And a characteristic "destination_zip_code" of "<zip>"
+    When the "destination" committee is calculated
+    Then the committee should have used quorum "from destination zip code"
+    And the conclusion of the committee should be "<destination>"
+    Examples:
+      | zip   | destination |
+      | 05401 | 05401       |
+      | 00000 | 00000       |
+
+  Scenario Outline: Destination location from goecodeable destination
+    Given a shipment emitter
+    And a characteristic "destination" of "<destination>"
+    When the "destination_location" committee is calculated
+    Then the committee should have used quorum "from destination"
+    And the conclusion of the committee should be "<location>"
+    Examples:
+      | destination                                    | location                |
+      | 05401                                          | 44.4774456,-73.2163467  |
+      | San Francisco, CA                              | 37.7749295,-122.4194155 |
+      | Address: 488 Haight Street, San Francisco, CA  | 37.7721568,-122.4302295 |
+      | Canterbury, Kent, UK                           | 51.2772689,1.0805173    |
+
+  Scenario Outline: Destination location from non-geocodeable destination
+    Given a shipment emitter
+    And a characteristic "destination" of "<destination>"
+    When the "destination_location" committee is calculated
+    Then the conclusion of the committee should be nil
+    Examples:
+      | destination                                                                |
+      | 00000                                                                      |
+      | Bag End, Hobbiton, Westfarthing, The Shire, Eriador, Middle Earth |
+
   Scenario: Segment count from nothing
     Given a shipment emitter
     When the "segment_count" committee is calculated
@@ -92,63 +160,6 @@ Feature: Shipment Committee Calculations
       | 05753       | San Francisco, CA    | 4140.39274 |
       | Lansing, MI | Canterbury, Kent, UK | 6192.60039 |
       | 05753       | Canterbury, Kent, UK | 5384.08989 |
-  
-  Scenario Outline: Origin location from origin
-    Given a shipment emitter
-    And a characteristic "origin" of "<origin>"
-    When the "origin_location" committee is calculated
-    Then the committee should have used quorum "from origin"
-    And the conclusion of the committee should be "<location>"
-    Examples:
-      | origin                                         | location                |
-      | 05753                                          | 43.9968185,-73.1491165  |
-      | Address: San Francisco, CA                     | 37.7749295,-122.4194155 |
-      | Address: 488 Haight Street, San Francisco, CA  | 37.7721568,-122.4302295 |
-      | Address: Canterbury, Kent, UK                  | 51.2772689,1.0805173    |
-
-  Scenario Outline: Origin location from origin_zip_code
-    Given a shipment emitter
-    And a characteristic "origin_zip_code" of "<origin>"
-    When the "origin" committee is calculated
-    And the "origin_location" committee is calculated
-    Then the conclusion of the committee should be "<location>"
-    Examples:
-      | origin                                         | location                |
-      | 05753                                          | 43.9968185,-73.1491165  |
-  
-  Scenario Outline: Destination location from destination
-    Given a shipment emitter
-    And a characteristic "destination" of "<destination>"
-    When the "destination_location" committee is calculated
-    Then the committee should have used quorum "from destination"
-    And the conclusion of the committee should be "<location>"
-    Examples:
-      | destination                                    | location                |
-      | 05753                                          | 43.9968185,-73.1491165  |
-      | Address: 488 Haight Street, San Francisco, CA  | 37.7721568,-122.4302295 |
-      | Address: Canterbury, Kent, UK                  | 51.2772689,1.0805173    |
-  
-  Scenario Outline: Destination location from destination_zip_code
-    Given a shipment emitter
-    And a characteristic "destination_zip_code" of "<destination>"
-    When the "destination" committee is calculated
-    And the "destination_location" committee is calculated
-    Then the conclusion of the committee should be "<location>"
-    Examples:
-      | destination | location                |
-      | 05753       | 43.9968185,-73.1491165  |
-
-  Scenario: Origin committee from uncodable origin
-    Given a shipment emitter
-    And a characteristic "origin" of "Bag End, Hobbiton, Westfarthing, The Shire, Eriador, Middle Earth"
-    When the "origin_location" committee is calculated
-    Then the conclusion of the committee should be nil
-  
-  Scenario: Destination committee from uncodable destination
-    Given a shipment emitter
-    And a characteristic "destination" of "Bag End, Hobbiton, Westfarthing, The Shire, Eriador, Middle Earth"
-    When the "destination_location" committee is calculated
-    Then the conclusion of the committee should be nil
 
   Scenario: Route inefficiency factor from default
     Given a shipment emitter
