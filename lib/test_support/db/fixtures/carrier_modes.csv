@@ -1,0 +1,4 @@
+name,carrier_name,mode_name,route_inefficiency_factor,transport_emission_factor,transport_emission_factor_units
+FedEx courier,FedEx,courier,1.0,1100.0,kilograms_per_stop
+FedEx ground,FedEx,ground,1.0,2.0,kilograms_per_kilogram_kilometre
+FedEx air,FedEx,air,1.1,6.0,kilograms_per_kilogram_kilometre

@@ -58,6 +58,14 @@ module BrighterPlanet
           end
           
           committee :transport_emission_factor do
+            quorum 'from carrier mode, verified weight, and adjusted distance', :needs => [:carrier_mode, :verified_weight, :adjusted_distance] do |characteristics|
+              if characteristics[:carrier_mode].mode_name == "courier"
+                characteristics[:carrier_mode].transport_emission_factor / (characteristics[:verified_weight] * characteristics[:adjusted_distance])
+              else
+                characteristics[:carrier_mode].transport_emission_factor
+              end
+            end
+
             quorum 'from mode, verified weight, and adjusted distance', :needs => [:mode, :verified_weight, :adjusted_distance] do |characteristics|
               if characteristics[:mode].name == "courier"
                 characteristics[:mode].transport_emission_factor / (characteristics[:verified_weight] * characteristics[:adjusted_distance])
@@ -66,8 +74,12 @@ module BrighterPlanet
               end
             end
             
+            quorum 'from carrier', :needs => :carrier do |characteristics|
+              characteristics[:carrier].transport_emission_factor
+            end
+            
             quorum 'default' do
-              ShipmentMode.fallback.transport_emission_factor
+              Carrier.fallback.transport_emission_factor
             end
           end
           
@@ -97,7 +109,7 @@ module BrighterPlanet
             end
             
             quorum 'default' do
-              ShipmentMode.fallback.route_inefficiency_factor
+              Carrier.fallback.route_inefficiency_factor
             end
           end
             
@@ -120,6 +132,12 @@ module BrighterPlanet
                 characteristics[:origin_location],
                 characteristics[:destination_location],
                 :units => :kms)
+            end
+          end
+          
+          committee :carrier_mode do
+            quorum 'from carrier and mode', :needs => [:carrier, :mode] do |characteristics|
+              CarrierMode.find_by_carrier_name_and_mode_name(characteristics[:carrier].name, characteristics[:mode].name)
             end
           end
           

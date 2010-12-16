@@ -52,7 +52,7 @@ Feature: Shipment Committee Calculations
       | 05753 | 05753  |
       | 00000 | 00000  |
 
-  Scenario Outline: Origin location from goecodeable origin
+  Scenario Outline: Origin location from geocodeable origin
     Given a shipment emitter
     And a characteristic "origin" of "<origin>"
     When the "origin_location" committee is calculated
@@ -62,7 +62,7 @@ Feature: Shipment Committee Calculations
       | origin                                        | location                |
       | 05753                                         | 43.9968185,-73.1491165  |
       | San Francisco, CA                             | 37.7749295,-122.4194155 |
-      | Address: 488 Haight Street, San Francisco, CA | 37.7721568,-122.4302295 |
+      | Address: 488 Haight Street, San Francisco, CA | 37.7722302,-122.4303328 |
       | Canterbury, Kent, UK                          | 51.2772689,1.0805173    |
 
   Scenario Outline: Origin location from non-geocodeable origin
@@ -86,18 +86,18 @@ Feature: Shipment Committee Calculations
       | 05401 | 05401       |
       | 00000 | 00000       |
 
-  Scenario Outline: Destination location from goecodeable destination
+  Scenario Outline: Destination location from geocodeable destination
     Given a shipment emitter
     And a characteristic "destination" of "<destination>"
     When the "destination_location" committee is calculated
     Then the committee should have used quorum "from destination"
     And the conclusion of the committee should be "<location>"
     Examples:
-      | destination                                    | location                |
-      | 05401                                          | 44.4774456,-73.2163467  |
-      | San Francisco, CA                              | 37.7749295,-122.4194155 |
-      | Address: 488 Haight Street, San Francisco, CA  | 37.7721568,-122.4302295 |
-      | Canterbury, Kent, UK                           | 51.2772689,1.0805173    |
+      | destination                                   | location                |
+      | 05401                                         | 44.4774456,-73.2163467  |
+      | San Francisco, CA                             | 37.7749295,-122.4194155 |
+      | Address: 488 Haight Street, San Francisco, CA | 37.7722302,-122.4303328 |
+      | Canterbury, Kent, UK                          | 51.2772689,1.0805173    |
 
   Scenario Outline: Destination location from non-geocodeable destination
     Given a shipment emitter
@@ -114,6 +114,14 @@ Feature: Shipment Committee Calculations
     When the "segment_count" committee is calculated
     Then the committee should have used quorum "default"
     And the conclusion of the committee should be "5"
+
+  Scenario: Carrier mode from carrier and mode
+    Given a shipment emitter
+    And a characteristic "carrier.name" of "FedEx"
+    And a characteristic "mode.name" of "ground"
+    When the "carrier_mode" committee is calculated
+    Then the committee should have used quorum "from carrier and mode"
+    And the conclusion of the committee should have "name" of "FedEx ground"
 
   Scenario Outline: Distance by road from locations and mode
     Given a shipment emitter
@@ -177,7 +185,7 @@ Feature: Shipment Committee Calculations
     Given a shipment emitter
     When the "route_inefficiency_factor" committee is calculated
     Then the committee should have used quorum "default"
-    And the conclusion of the committee should be "1.05"
+    And the conclusion of the committee should be "1.03"
 
   Scenario Outline: Route inefficiency factor from mode
     Given a shipment emitter
@@ -187,7 +195,7 @@ Feature: Shipment Committee Calculations
     And the conclusion of the committee should be "<factor>"
     Examples:
       | mode    | factor |
-      | courier | 5.0    |
+      | courier | 1.0    |
       | ground  | 1.0    |
       | air     | 1.1    |
 
@@ -222,7 +230,14 @@ Feature: Shipment Committee Calculations
     Given a shipment emitter
     When the "transport_emission_factor" committee is calculated
     Then the committee should have used quorum "default"
-    And the conclusion of the committee should be "0.00076955"
+    And the conclusion of the committee should be "0.0005266"
+
+  Scenario Outline: Transport emission factor from carrier
+    Given a shipment emitter
+    And a characteristic "carrier.name" of "FedEx"
+    When the "transport_emission_factor" committee is calculated
+    Then the committee should have used quorum "from carrier"
+    And the conclusion of the committee should be "1.0"
 
   Scenario Outline: Transport emission factor from mode, verified weight, and adjusted distance
     Given a shipment emitter
@@ -234,22 +249,36 @@ Feature: Shipment Committee Calculations
     And the conclusion of the committee should be "<emission_factor>"
     Examples:
       | mode    | weight | adjusted_distance | emission_factor |
-      | courier | 2.0    | 5.0               | 0.2             |
+      | courier | 2.0    | 5.0               | 100.0           |
       | ground  | 2.0    | 50.0              | 1.0             |
       | air     | 2.0    | 50.0              | 5.0             |
+
+  Scenario Outline: Transport emission factor from carrier mode, verified weight, and adjusted distance
+    Given a shipment emitter
+    And a characteristic "carrier_mode.name" of "<carrier_mode>"
+    And a characteristic "verified_weight" of "<weight>"
+    And a characteristic "adjusted_distance" of "<adjusted_distance>"
+    When the "transport_emission_factor" committee is calculated
+    Then the committee should have used quorum "from carrier mode, verified weight, and adjusted distance"
+    And the conclusion of the committee should be "<emission_factor>"
+    Examples:
+      | carrier_mode    | weight | adjusted_distance | emission_factor |
+      | FedEx courier   | 2.0    | 5.0               | 110.0           |
+      | FedEx ground    | 2.0    | 50.0              | 2.0             |
+      | FedEx air       | 2.0    | 50.0              | 6.0             |
 
   Scenario: Corporate emission factor from default
     Given a shipment emitter
     When the "corporate_emission_factor" committee is calculated
     Then the committee should have used quorum "default"
-    And the conclusion of the committee should be "0.318"
+    And the conclusion of the committee should be "0.221"
 
   Scenario: Corporate emission factor from carrier
     Given a shipment emitter
     And a characteristic "carrier.name" of "FedEx"
     When the "corporate_emission_factor" committee is calculated
     Then the committee should have used quorum "from carrier"
-    And the conclusion of the committee should be "2.0"
+    And the conclusion of the committee should be "1500.0"
 
   Scenario: Transport emission from verified weight, adjusted distance, and transport emission factor
     Given a shipment emitter

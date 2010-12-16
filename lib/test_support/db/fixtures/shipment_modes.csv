@@ -1,4 +1,4 @@
 name,route_inefficiency_factor,transport_emission_factor,transport_emission_factor_units
-courier,5.0,2.0,kilograms_per_stop
+courier,1.0,1000.0,kilograms_per_stop
 ground,1.0,1.0,kilograms_per_kilogram_kilometre
 air,1.1,5.0,kilograms_per_kilogram_kilometre
