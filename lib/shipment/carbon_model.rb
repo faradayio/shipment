@@ -35,23 +35,15 @@ module BrighterPlanet
           end
           
           committee :corporate_emission do
-            quorum 'from package count and corporate emission factor', :needs => [:package_count, :corporate_emission_factor] do |characteristics|
-              if characteristics[:package_count] > 0
-                characteristics[:package_count] * characteristics[:corporate_emission_factor]
-              else
-                raise "Invalid package_count: #{:package_count} (must be > 0)"
-              end
+            quorum 'from verified package count and corporate emission factor', :needs => [:verified_package_count, :corporate_emission_factor] do |characteristics|
+              characteristics[:verified_package_count] * characteristics[:corporate_emission_factor]
             end
           end
           
           committee :transport_emission do
-            quorum 'from weight, adjusted distance, and transport emission factor', :needs => [:weight, :adjusted_distance, :transport_emission_factor] do |characteristics|
-              # we're assuming here that the number of stops, rather than number of packages carried, is limiting factor on local delivery routes
-              if characteristics[:weight] > 0
-                characteristics[:weight] * characteristics[:adjusted_distance] * characteristics[:transport_emission_factor]
-              else
-                raise "Invalid weight: :weight (must be > 0)"
-              end
+            quorum 'from verified weight, adjusted distance, and transport emission factor', :needs => [:verified_weight, :adjusted_distance, :transport_emission_factor] do |characteristics|
+              # we're assuming that the number of stops, rather than number of packages carried, is limiting factor on local delivery routes
+              characteristics[:verified_weight] * characteristics[:adjusted_distance] * characteristics[:transport_emission_factor]
             end
           end
           
@@ -66,9 +58,9 @@ module BrighterPlanet
           end
           
           committee :transport_emission_factor do
-            quorum 'from mode, weight, and adjusted distance', :needs => [:mode, :weight, :adjusted_distance] do |characteristics|
+            quorum 'from mode, verified weight, and adjusted distance', :needs => [:mode, :verified_weight, :adjusted_distance] do |characteristics|
               if characteristics[:mode].name == "courier"
-                characteristics[:mode].transport_emission_factor / (characteristics[:weight] * characteristics[:adjusted_distance])
+                characteristics[:mode].transport_emission_factor / (characteristics[:verified_weight] * characteristics[:adjusted_distance])
               else
                 characteristics[:mode].transport_emission_factor
               end
@@ -167,13 +159,29 @@ module BrighterPlanet
             end
           end
           
-          committee :package_count do
+          committee :verified_package_count do
+            quorum 'from package count', :needs => :package_count do |characteristics|
+              if characteristics[:package_count] > 0
+                characteristics[:package_count]
+              else
+                nil
+              end
+            end
+            
             quorum 'default' do
               1 # ASSUMED arbitrary
             end
           end
           
-          committee :weight do
+          committee :verified_weight do
+            quorum 'from weight', :needs => :weight do |characteristics|
+              if characteristics[:weight] > 0
+                characteristics[:weight]
+              else
+                nil
+              end
+            end
+            
             quorum 'default' do
               3.4 # ASSUMED based on average FedEx air package weight of 7.5 lbs
             end
