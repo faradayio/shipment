@@ -13,15 +13,17 @@ Feature: Shipment Emissions Calculations
     When emissions are calculated
     Then the emission value should be within "0.1" kgs of "25.4"
 
-  Scenario Outline: Calculations from origin/destination
-    Given a shipment has "origin" of "<origin>"
-    And it has "destination" of "<destination>"
+  Scenario: Calculations from origin/destination zip code
+    Given a shipment has "origin_zip_code" of "05753"
+    And it has "destination_zip_code" of "05401"
     When emissions are calculated
-    Then the emission value should be within "0.1" kgs of "<emission>"
-    Examples:
-      | origin | destination                          | emission |
-      | 05401  | 488 Haight Street, San Francisco, CA | 20.7     |
-      | 05401  | Canterbury, Kent, UK                 | 26.8     |
+    Then the emission value should be within "0.1" kgs of "0.6"
+
+  Scenario: Calculations from origin/destination
+    Given a shipment has "origin" of "Lansing, MI"
+    And it has "destination" of "Canterbury, Kent, UK"
+    When emissions are calculated
+    Then the emission value should be within "0.1" kgs of "30.9"
 
   Scenario: Calculations from carrier
     Given a shipment has "carrier.name" of "FedEx"
@@ -45,10 +47,10 @@ Feature: Shipment Emissions Calculations
     When emissions are calculated
     Then the emission value should be within "0.1" kgs of "<emission>"
     Examples:
-      | mode    | origin | destination                                   | emission     |
-      | courier | 05753  | Address: 488 Haight Street, San Francisco, CA | 2.318        |
-      | courier | 05753  | Address: Canterbury, Kent, UK                 | 2.318        |
-      | ground  | 05753  | Address: 488 Haight Street, San Francisco, CA | 25345.6      |
-      | ground  | 05753  | Address: Canterbury, Kent, UK                 | 32950.9      |
-      | air     | 05753  | Address: 488 Haight Street, San Francisco, CA | 139399.3     |
-      | air     | 05753  | Address: Canterbury, Kent, UK                 | 181228.8     |
+      | mode    | origin      | destination          | emission |
+      | courier | 05753       | 05401                | 2.3      |
+      | courier | Lansing, MI | Canterbury, Kent, UK | 2.3      |
+      | ground  | 05753       | 05401                | 329.3    |
+      | ground  | Lansing, MI | Canterbury, Kent, UK | 37899.0  |
+      | air     | 05753       | 05401                | 1809.9   |
+      | air     | Lansing, MI | Canterbury, Kent, UK | 208443.2 |

@@ -115,36 +115,39 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "default"
     And the conclusion of the committee should be "5"
 
-  Scenario Outline: Distance from same locality
+  Scenario Outline: Distance by road from locations and mode
     Given a shipment emitter
     And a characteristic "origin" of "<origin>"
     And a characteristic "destination" of "<destination>"
-    When the "origin_location" committee is calculated
-    And the "destination_location" committee is calculated
-    And the "distance" committee is calculated
-    Then the conclusion of the committee should be "<distance>"
-    Examples:
-      | origin | destination | distance |
-      | 05753  | 05753       | 0        |
-  
-  Scenario Outline: Distance from mapquest
-    Given a shipment emitter
-    And a characteristic "origin" of "<origin>"
-    And a characteristic "destination" of "<destination>"
-    And a characteristic "mode.name" of "ground"
+    And a characteristic "mode.name" of "<mode>"
     And a characteristic "mapquest_api_key" of "ABC123"
     And mapquest determines the distance to be "<mapquest_distance>"
     When the "origin_location" committee is calculated
     And the "destination_location" committee is calculated
     And the "distance" committee is calculated
-    Then the committee should have used quorum "from mapquest"
+    Then the committee should have used quorum "by road"
     And the conclusion of the committee should be "<distance>"
     Examples:
-      | origin | destination | mapquest_distance | distance |
-      | 05753  | 05401       | 53                | 53       |
-      | 05753  | 05401       | 33                | 33       |
+      | origin | destination | mode    | mapquest_distance | distance |
+      | 05753  | 05753       | ground  | 0.0               | 0.0      |
+      | 05753  | 05401       | ground  | 58.77486          | 58.77486 |
+      | 05753  | 05753       | courier | 0.0               | 0.0      |
+      | 05753  | 05401       | courier | 58.77486          | 58.77486 |
 
-  Scenario Outline: Distance from direct path
+  Scenario: Distance by road from undriveable locations and mode
+    Given a shipment emitter
+    And a characteristic "origin" of "Lansing, MI"
+    And a characteristic "destination" of "Canterbury, Kent, UK"
+    And a characteristic "mode.name" of "ground"
+    And a characteristic "mapquest_api_key" of "ABC123"
+    # And mapquest determines the distance to be "400 Could not find a data set capable of performing the route."
+    When the "origin_location" committee is calculated
+    And the "destination_location" committee is calculated
+    And the "distance" committee is calculated
+    Then the committee should have used quorum "as the crow flies"
+    And the conclusion of the committee should be "6192.60039"
+
+  Scenario Outline: Distance as the crow flies from locations and mode
     Given a shipment emitter
     And a characteristic "origin" of "<origin>"
     And a characteristic "destination" of "<destination>"
@@ -153,13 +156,22 @@ Feature: Shipment Committee Calculations
     When the "origin_location" committee is calculated
     And the "destination_location" committee is calculated
     And the "distance" committee is calculated
-    Then the committee should have used quorum "from direct path"
+    Then the committee should have used quorum "as the crow flies"
     And the conclusion of the committee should be "<distance>"
     Examples:
       | origin      | destination          | distance   |
-      | 05753       | San Francisco, CA    | 4140.39274 |
+      | 05753       | 05401                | 53.75967   |
       | Lansing, MI | Canterbury, Kent, UK | 6192.60039 |
-      | 05753       | Canterbury, Kent, UK | 5384.08989 |
+  
+  Scenario: Distance as the crow flies from locations
+    Given a shipment emitter
+    And a characteristic "origin" of "05753"
+    And a characteristic "destination" of "05401"
+    When the "origin_location" committee is calculated
+    And the "destination_location" committee is calculated
+    And the "distance" committee is calculated
+    Then the committee should have used quorum "as the crow flies"
+    And the conclusion of the committee should be "53.75967"
 
   Scenario: Route inefficiency factor from default
     Given a shipment emitter

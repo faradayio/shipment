@@ -100,22 +100,22 @@ module BrighterPlanet
               ShipmentMode.fallback.route_inefficiency_factor
             end
           end
-          
+            
           committee :distance do
-            quorum 'from same locality', :needs => [:origin_location, :destination_location] do |characteristics|
-              if characteristics[:origin_location] == characteristics[:destination_location]
-                0
-              end
-            end
-            quorum 'from mapquest', :needs => [:origin_location, :destination_location, :mode, :mapquest_api_key] do |characteristics|
+            quorum 'by road', :needs => [:origin_location, :destination_location, :mode, :mapquest_api_key] do |characteristics|
               unless characteristics[:mode].name == 'air'
                 mapquest = MapQuestDirections.new characteristics[:origin_location],
                                                   characteristics[:destination_location],
                                                   characteristics[:mapquest_api_key]
-                mapquest.distance_in_miles
+                begin
+                  mapquest.distance_in_miles
+                rescue
+                  nil
+                end
               end
             end
-            quorum 'from direct path', :needs => [:origin_location, :destination_location] do |characteristics|
+            
+            quorum 'as the crow flies', :needs => [:origin_location, :destination_location] do |characteristics|
               Mapper.distance_between(
                 characteristics[:origin_location],
                 characteristics[:destination_location],
