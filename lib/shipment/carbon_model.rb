@@ -80,12 +80,11 @@ module BrighterPlanet
               3219 # ASSUMED: arbitrary
             end
           end
-            
+          
           committee :dogleg_factor do
             quorum 'from segment count', :needs => :segment_count do |characteristics|
-              if characteristics[:segment_count] > 0
-                # ASSUMED arbitrary
-                1.5 ** (characteristics[:segment_count] - 1)
+              if characteristics[:segment_count] == 1
+                1.0
               else
                 1.8 # based on our sample FedEx tracking numbers
               end

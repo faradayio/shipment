@@ -20,8 +20,8 @@ Feature: Shipment Emissions Calculations
     Then the emission value should be within "0.1" kgs of "<emission>"
     Examples:
       | origin | destination                          | emission |
-      | 05401  | 488 Haight Street, San Francisco, CA | 57.74974 |
-      | 05401  | Canterbury, Kent, UK                 | 74.82651 |
+      | 05401  | 488 Haight Street, San Francisco, CA | 20.7     |
+      | 05401  | Canterbury, Kent, UK                 | 26.8     |
 
   Scenario: Calculations from carrier
     Given a shipment has "carrier.name" of "FedEx"
@@ -48,7 +48,7 @@ Feature: Shipment Emissions Calculations
       | mode    | origin | destination                                   | emission     |
       | courier | 05753  | Address: 488 Haight Street, San Francisco, CA | 2.318        |
       | courier | 05753  | Address: Canterbury, Kent, UK                 | 2.318        |
-      | ground  | 05753  | Address: 488 Haight Street, San Francisco, CA | 71283.88938  |
-      | ground  | 05753  | Address: Canterbury, Kent, UK                 | 92673.96537  |
-      | air     | 05753  | Address: 488 Haight Street, San Francisco, CA | 392059.96060 |
-      | air     | 05753  | Address: Canterbury, Kent, UK                 | 509705.37857 |
+      | ground  | 05753  | Address: 488 Haight Street, San Francisco, CA | 25345.6      |
+      | ground  | 05753  | Address: Canterbury, Kent, UK                 | 32950.9      |
+      | air     | 05753  | Address: 488 Haight Street, San Francisco, CA | 139399.3     |
+      | air     | 05753  | Address: Canterbury, Kent, UK                 | 181228.8     |

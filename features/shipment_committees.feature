@@ -179,13 +179,6 @@ Feature: Shipment Committee Calculations
       | ground  | 1.0    |
       | air     | 1.1    |
 
-  Scenario: Dogleg factor from default segment count
-    Given a shipment emitter
-    When the "segment_count" committee is calculated
-    And the "dogleg_factor" committee is calculated
-    Then the committee should have used quorum "from segment count"
-    And the conclusion of the committee should be "5.0625"
-
   Scenario Outline: Dogleg factor from segment count
     Given a shipment emitter
     And a characteristic "segment_count" of "<segments>"
@@ -195,7 +188,8 @@ Feature: Shipment Committee Calculations
     Examples:
       | segments | factor |
       | 1        | 1.0    |
-      | 2        | 1.5    |
+      | 5        | 1.8    |
+      | -1       | 1.8    |
 
   Scenario: Adjusted distance from default
     Given a shipment emitter
