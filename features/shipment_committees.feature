@@ -130,9 +130,9 @@ Feature: Shipment Committee Calculations
     Examples:
       | origin | destination | mode    | mapquest_distance | distance |
       | 05753  | 05753       | ground  | 0.0               | 0.0      |
-      | 05753  | 05401       | ground  | 58.77486          | 58.77486 |
+      | 05753  | 05401       | ground  | 57.93638          | 57.93638 |
       | 05753  | 05753       | courier | 0.0               | 0.0      |
-      | 05753  | 05401       | courier | 58.77486          | 58.77486 |
+      | 05753  | 05401       | courier | 57.93638          | 57.93638 |
 
   Scenario: Distance by road from undriveable locations and mode
     Given a shipment emitter

@@ -33,8 +33,12 @@ class MapQuestDirections
     convert_to_minutes(drive_time)
   end
 
-  def distance_in_miles
+  def distance_in_kilometres
     distance_in_miles = doc.css("distance").first.text.to_i
+  end
+  
+  def distance_in_kilometres
+    distance_in_kilometres = doc.css("distance").first.text.to_f.miles.to(:kilometres)
   end
     
 private

@@ -108,7 +108,7 @@ module BrighterPlanet
                                                   characteristics[:destination_location],
                                                   characteristics[:mapquest_api_key]
                 begin
-                  mapquest.distance_in_miles
+                  mapquest.distance_in_kilometres
                 rescue
                   nil
                 end
