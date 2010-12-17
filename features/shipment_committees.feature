@@ -54,27 +54,25 @@ Feature: Shipment Committee Calculations
 
   Scenario Outline: Origin location from geocodeable origin
     Given a shipment emitter
-    And a characteristic "origin" of "<origin>"
+    And a characteristic "origin" of address value "<origin>"
+    And the geocoder will encode the origin as "<geocode>"
     When the "origin_location" committee is calculated
     Then the committee should have used quorum "from origin"
     And the conclusion of the committee should be "<location>"
     Examples:
-      | origin                                        | location                |
-      | 05753                                         | 43.9968185,-73.1491165  |
-      | San Francisco, CA                             | 37.7749295,-122.4194155 |
-      | Address: 488 Haight Street, San Francisco, CA | 37.7722302,-122.4303328 |
-      | Canterbury, Kent, UK                          | 51.2772689,1.0805173    |
+      | origin                               | geocode                 | location                |
+      | 05753                                | 43.9968185,-73.1491165  | 43.9968185,-73.1491165  |
+      | San Francisco, CA                    | 37.7749295,-122.4194155 | 37.7749295,-122.4194155 |
+      | 488 Haight Street, San Francisco, CA | 37.7722302,-122.4303328 | 37.7722302,-122.4303328 |
+      | Canterbury, Kent, UK                 | 51.2772689,1.0805173    | 51.2772689,1.0805173    |
 
-  Scenario Outline: Origin location from non-geocodeable origin
+  Scenario: Origin location from non-geocodeable origin
     Given a shipment emitter
-    And a characteristic "origin" of "<origin>"
+    And a characteristic "origin" of "Bag End, Hobbiton, Westfarthing, The Shire, Eriador, Middle Earth"
+    And the geocoder will encode the origin as ","
     When the "origin_location" committee is calculated
     Then the conclusion of the committee should be nil
-    Examples:
-      | origin                                                            |
-      | 00000                                                             |
-      | Bag End, Hobbiton, Westfarthing, The Shire, Eriador, Middle Earth |
-
+    
   Scenario Outline: Destination from zip code
     Given a shipment emitter
     And a characteristic "destination_zip_code" of "<zip>"
@@ -89,25 +87,23 @@ Feature: Shipment Committee Calculations
   Scenario Outline: Destination location from geocodeable destination
     Given a shipment emitter
     And a characteristic "destination" of "<destination>"
+    And the geocoder will encode the destination as "<geocode>"
     When the "destination_location" committee is calculated
     Then the committee should have used quorum "from destination"
     And the conclusion of the committee should be "<location>"
     Examples:
-      | destination                                   | location                |
-      | 05401                                         | 44.4774456,-73.2163467  |
-      | San Francisco, CA                             | 37.7749295,-122.4194155 |
-      | Address: 488 Haight Street, San Francisco, CA | 37.7722302,-122.4303328 |
-      | Canterbury, Kent, UK                          | 51.2772689,1.0805173    |
+      | destination                          | geocode                 | location                |
+      | 05753                                | 43.9968185,-73.1491165  | 43.9968185,-73.1491165  |
+      | San Francisco, CA                    | 37.7749295,-122.4194155 | 37.7749295,-122.4194155 |
+      | 488 Haight Street, San Francisco, CA | 37.7722302,-122.4303328 | 37.7722302,-122.4303328 |
+      | Canterbury, Kent, UK                 | 51.2772689,1.0805173    | 51.2772689,1.0805173    |
 
-  Scenario Outline: Destination location from non-geocodeable destination
+  Scenario: Destination location from non-geocodeable origin
     Given a shipment emitter
-    And a characteristic "destination" of "<destination>"
+    And a characteristic "destination" of "Bag End, Hobbiton, Westfarthing, The Shire, Eriador, Middle Earth"
+    And the geocoder will encode the destination as ","
     When the "destination_location" committee is calculated
     Then the conclusion of the committee should be nil
-    Examples:
-      | destination                                                                |
-      | 00000                                                                      |
-      | Bag End, Hobbiton, Westfarthing, The Shire, Eriador, Middle Earth |
 
   Scenario: Segment count from nothing
     Given a shipment emitter
@@ -125,22 +121,20 @@ Feature: Shipment Committee Calculations
 
   Scenario Outline: Distance by road from locations and mode
     Given a shipment emitter
-    And a characteristic "origin" of "<origin>"
-    And a characteristic "destination" of "<destination>"
+    And a characteristic "origin_location" of "<origin>"
+    And a characteristic "destination_location" of "<destination>"
     And a characteristic "mode.name" of "<mode>"
     And a characteristic "mapquest_api_key" of "ABC123"
     And mapquest determines the distance to be "<mapquest_distance>"
-    When the "origin_location" committee is calculated
-    And the "destination_location" committee is calculated
-    And the "distance" committee is calculated
+    When the "distance" committee is calculated
     Then the committee should have used quorum "by road"
     And the conclusion of the committee should be "<distance>"
     Examples:
       | origin | destination | mode    | mapquest_distance | distance |
-      | 05753  | 05753       | ground  | 0.0               | 0.0      |
-      | 05753  | 05401       | ground  | 57.93638          | 57.93638 |
-      | 05753  | 05753       | courier | 0.0               | 0.0      |
-      | 05753  | 05401       | courier | 57.93638          | 57.93638 |
+      | 43,-73 | 43.-73      | ground  | 0.0               | 0.0      |
+      | 43,-73 | 43.1,-73    | ground  | 57.93638          | 57.93638 |
+      | 43,-73 | 43,-73      | courier | 0.0               | 0.0      |
+      | 43,-73 | 43.1,-73    | courier | 57.93638          | 57.93638 |
 
   Scenario: Distance by road from undriveable locations and mode
     Given a shipment emitter
@@ -157,27 +151,23 @@ Feature: Shipment Committee Calculations
 
   Scenario Outline: Distance as the crow flies from locations and mode
     Given a shipment emitter
-    And a characteristic "origin" of "<origin>"
-    And a characteristic "destination" of "<destination>"
+    And a characteristic "origin_location" of "<origin>"
+    And a characteristic "destination_location" of "<destination>"
     And a characteristic "mode.name" of "air"
     And a characteristic "mapquest_api_key" of "ABC123"
-    When the "origin_location" committee is calculated
-    And the "destination_location" committee is calculated
-    And the "distance" committee is calculated
+    When the "distance" committee is calculated
     Then the committee should have used quorum "as the crow flies"
     And the conclusion of the committee should be "<distance>"
     Examples:
-      | origin      | destination          | distance   |
-      | 05753       | 05401                | 53.75967   |
-      | Lansing, MI | Canterbury, Kent, UK | 6192.60039 |
+      | origin                 | destination            | distance   |
+      | 43.9968185,-73.1491165 | 44.4774456,-73.2163467 | 53.75967   |
+      | 42.732535,-84.5555347  | 51.2772689,1.0805173   | 6192.60039 |
   
   Scenario: Distance as the crow flies from locations
     Given a shipment emitter
-    And a characteristic "origin" of "05753"
-    And a characteristic "destination" of "05401"
-    When the "origin_location" committee is calculated
-    And the "destination_location" committee is calculated
-    And the "distance" committee is calculated
+    And a characteristic "origin_location" of "43.9968185,-73.1491165"
+    And a characteristic "destination_location" of "44.4774456,-73.2163467"
+    When the "distance" committee is calculated
     Then the committee should have used quorum "as the crow flies"
     And the conclusion of the committee should be "53.75967"
 
