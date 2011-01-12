@@ -1,46 +1,18 @@
 Feature: Shipment Committee Calculations
   The shipment model should generate correct committee calculations
 
-  Scenario: Verified weight from nothing
+  Scenario: Weight from default
     Given a shipment emitter
-    When the "verified_weight" committee is calculated
+    When the "weight" committee is calculated
     Then the committee should have used quorum "default"
     And the conclusion of the committee should be "3.4"
   
-  Scenario: Verified weight from invalid weight
+  Scenario: Package count from default
     Given a shipment emitter
-    And a characteristic "weight" of "0.0"
-    When the "verified_weight" committee is calculated
-    Then the committee should have used quorum "default"
-    And the conclusion of the committee should be "3.4"
-
-  Scenario: Verified weight from valid weight
-    Given a shipment emitter
-    And a characteristic "weight" of "2.0"
-    When the "verified_weight" committee is calculated
-    Then the committee should have used quorum "from weight"
-    And the conclusion of the committee should be "2.0"
-
-  Scenario: Verified package count from nothing
-    Given a shipment emitter
-    When the "verified_package_count" committee is calculated
+    When the "package_count" committee is calculated
     Then the committee should have used quorum "default"
     And the conclusion of the committee should be "1"
   
-  Scenario: Verified package count from invalid package count
-    Given a shipment emitter
-    And a characteristic "package_count" of "0.0"
-    When the "verified_package_count" committee is calculated
-    Then the committee should have used quorum "default"
-    And the conclusion of the committee should be "1"
-
-  Scenario: Verified package count from valid package count
-    Given a shipment emitter
-    And a characteristic "package_count" of "2"
-    When the "verified_package_count" committee is calculated
-    Then the committee should have used quorum "from package count"
-    And the conclusion of the committee should be "2"
-
   Scenario Outline: Origin from zip code
     Given a shipment emitter
     And a characteristic "origin_zip_code" of "<zip>"
@@ -105,7 +77,7 @@ Feature: Shipment Committee Calculations
     When the "destination_location" committee is calculated
     Then the conclusion of the committee should be nil
 
-  Scenario: Segment count from nothing
+  Scenario: Segment count from default
     Given a shipment emitter
     When the "segment_count" committee is calculated
     Then the committee should have used quorum "default"
@@ -198,7 +170,7 @@ Feature: Shipment Committee Calculations
     Examples:
       | segments | factor |
       | 1        | 1.0    |
-      | 5        | 1.8    |
+      | 2        | 1.8    |
       | -1       | 1.8    |
 
   Scenario: Adjusted distance from default
@@ -229,13 +201,13 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "from carrier"
     And the conclusion of the committee should be "1.0"
 
-  Scenario Outline: Transport emission factor from mode, verified weight, and adjusted distance
+  Scenario Outline: Transport emission factor from mode, weight, and adjusted distance
     Given a shipment emitter
     And a characteristic "mode.name" of "<mode>"
-    And a characteristic "verified_weight" of "<weight>"
+    And a characteristic "weight" of "<weight>"
     And a characteristic "adjusted_distance" of "<adjusted_distance>"
     When the "transport_emission_factor" committee is calculated
-    Then the committee should have used quorum "from mode, verified weight, and adjusted distance"
+    Then the committee should have used quorum "from mode, weight, and adjusted distance"
     And the conclusion of the committee should be "<emission_factor>"
     Examples:
       | mode    | weight | adjusted_distance | emission_factor |
@@ -243,13 +215,13 @@ Feature: Shipment Committee Calculations
       | ground  | 2.0    | 50.0              | 1.0             |
       | air     | 2.0    | 50.0              | 5.0             |
 
-  Scenario Outline: Transport emission factor from carrier mode, verified weight, and adjusted distance
+  Scenario Outline: Transport emission factor from carrier mode, weight, and adjusted distance
     Given a shipment emitter
     And a characteristic "carrier_mode.name" of "<carrier_mode>"
-    And a characteristic "verified_weight" of "<weight>"
+    And a characteristic "weight" of "<weight>"
     And a characteristic "adjusted_distance" of "<adjusted_distance>"
     When the "transport_emission_factor" committee is calculated
-    Then the committee should have used quorum "from carrier mode, verified weight, and adjusted distance"
+    Then the committee should have used quorum "from carrier mode, weight, and adjusted distance"
     And the conclusion of the committee should be "<emission_factor>"
     Examples:
       | carrier_mode    | weight | adjusted_distance | emission_factor |
@@ -270,21 +242,21 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "from carrier"
     And the conclusion of the committee should be "1500.0"
 
-  Scenario: Transport emission from verified weight, adjusted distance, and transport emission factor
+  Scenario: Transport emission from weight, adjusted distance, and transport emission factor
     Given a shipment emitter
-    And a characteristic "verified_weight" of "2.0"
+    And a characteristic "weight" of "2.0"
     And a characteristic "adjusted_distance" of "100.0"
     And a characteristic "transport_emission_factor" of "2.0"
     When the "transport_emission" committee is calculated
-    Then the committee should have used quorum "from verified weight, adjusted distance, and transport emission factor"
+    Then the committee should have used quorum "from weight, adjusted distance, and transport emission factor"
     And the conclusion of the committee should be "400.0"
 
-  Scenario: Corporate emission from verified package count and corporate emission factor
+  Scenario: Corporate emission from package count and corporate emission factor
     Given a shipment emitter
-    And a characteristic "verified_package_count" of "2"
+    And a characteristic "package_count" of "2"
     And a characteristic "corporate_emission_factor" of "2.0"
     When the "corporate_emission" committee is calculated
-    Then the committee should have used quorum "from verified package count and corporate emission factor"
+    Then the committee should have used quorum "from package count and corporate emission factor"
     And the conclusion of the committee should be "4.0"
 
   Scenario: Emission from transport emission and corporate emission
