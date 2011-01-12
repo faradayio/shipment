@@ -5,15 +5,16 @@
 
 Gem::Specification.new do |s|
   s.name = %q{shipment}
-  s.version = "0.0.7"
+  s.version = "0.0.8"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Andy Rossmeissl", "Seamus Abshere", "Ian Hough", "Matt Kling", "Derek Kastner"]
-  s.date = %q{2010-12-17}
+  s.date = %q{2011-01-12}
   s.description = %q{A software model in Ruby for the greenhouse gas emissions of a shipment}
   s.email = %q{andy@rossmeissl.net}
   s.extra_rdoc_files = [
     "LICENSE",
+     "LICENSE-PREAMBLE",
      "README.rdoc"
   ]
   s.files = [
@@ -34,15 +35,15 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.7}
   s.summary = %q{A carbon model for a shipment}
   s.test_files = [
-    "features/support/env.rb",
-     "features/step_definitions/shipment_steps.rb",
+    "features/step_definitions/shipment_steps.rb",
+     "features/support/env.rb",
      "features/shipment_committees.feature",
      "features/shipment_emissions.feature",
      "lib/test_support/shipment_record.rb",
-     "vendor/plugin/mapquest/spec/lib/mapquest_directions_spec.rb",
-     "vendor/plugin/mapquest/spec/spec_helper.rb",
      "vendor/plugin/mapquest/init.rb",
-     "vendor/plugin/mapquest/lib/mapquest_directions.rb"
+     "vendor/plugin/mapquest/lib/mapquest_directions.rb",
+     "vendor/plugin/mapquest/spec/lib/mapquest_directions_spec.rb",
+     "vendor/plugin/mapquest/spec/spec_helper.rb"
   ]
 
   if s.respond_to? :specification_version then
