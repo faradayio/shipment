@@ -1,2 +1,2 @@
 name,route_inefficiency_factor,transport_emission_factor,transport_emission_factor_units,corporate_emission_factor,corporate_emission_factor_units
-FedEx,1.05,3.0,kilograms_per_kilogram_kilometre,1500.0,kilograms_per_package
+FedEx,1.05,0.0008,kilograms_per_kilogram_kilometre,0.3,kilograms_per_package

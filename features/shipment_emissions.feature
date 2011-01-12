@@ -6,12 +6,13 @@ Feature: Shipment Emissions Calculations
     When emissions are calculated
     Then the emission value should be within "0.1" kgs of "6.0"
 
-  Scenario: Calculations from weight, package count, segment count
+  Scenario: Calculations from weight, package count, segment count, and distance
     Given a shipment has "weight" of "10"
     And it has "package_count" of "2"
     And it has "segment_count" of "1"
+    And it has "distance" of "1000"
     When emissions are calculated
-    Then the emission value should be within "0.1" kgs of "17.4"
+    Then the emission value should be within "0.1" kgs of "5.9"
 
   Scenario: Calculations from origin/destination zip code
     Given a shipment has "origin_zip_code" of "05753"
@@ -32,7 +33,7 @@ Feature: Shipment Emissions Calculations
   Scenario: Calculations from carrier
     Given a shipment has "carrier.name" of "FedEx"
     When emissions are calculated
-    Then the emission value should be within "0.1" kgs of "34333.8"
+    Then the emission value should be within "0.1" kgs of "9.1"
 
   Scenario Outline: Calculations from mode
     Given a shipment has "mode.name" of "<mode>"
@@ -40,9 +41,9 @@ Feature: Shipment Emissions Calculations
     Then the emission value should be within "0.1" kgs of "<emission>"
     Examples:
       | mode    | emission |
-      | courier | 1000.2   |
-      | ground  | 10944.8  |
-      | air     | 54723.2  |
+      | courier | 5.2      |
+      | ground  | 2.4      |
+      | air     | 22.1     |
 
   Scenario Outline: Calculations from carrier and mode
     Given a shipment has "mode.name" of "<mode>"
@@ -51,9 +52,9 @@ Feature: Shipment Emissions Calculations
     Then the emission value should be within "0.1" kgs of "<emission>"
     Examples:
       | mode    | emission |
-      | courier | 2600.0   |
-      | ground  | 23389.2  |
-      | air     | 67167.6  |
+      | courier | 2.3      |
+      | ground  | 1.4      |
+      | air     | 11.2     |
 
   Scenario Outline: Calculations from mode and origin/destination
     Given a shipment has "mode.name" of "<mode>"
@@ -65,23 +66,12 @@ Feature: Shipment Emissions Calculations
     Then the emission value should be within "0.1" kgs of "<emission>"
     Examples:
       | mode    | origin      | origin_location        | destination          | destination_location   | emission |
-      | courier | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 1000.2   |
-      | courier | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 1000.2   |
-      | ground  | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 |329.2    |
-      | ground  | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 37898.9  |
-      | air     | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 1809.8   |
-      | air     | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 208443.2 |
-
-  Scenario Outline: Calculations from mode and carrier
-    Given a shipment has "carrier.name" of "FedEx"
-    And it has "mode.name" of "<mode>"
-    When emissions are calculated
-    Then the emission value should be within "0.1" kgs of "<emission>"
-    Examples:
-      | mode    | emission |
-      | courier | 2600.0   |
-      | ground  | 23389.2  |
-      | air     | 67167.6  |
+      | courier | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 5.2      |
+      | courier | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 5.2      |
+      | ground  | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 0.3      |
+      | ground  | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 7.8      |
+      | air     | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 0.9      |
+      | air     | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 83.6     |
 
   Scenario Outline: Calculations from mode, carrier, and origin/destination
     Given a shipment has "carrier.name" of "FedEx"
@@ -94,12 +84,12 @@ Feature: Shipment Emissions Calculations
     Then the emission value should be within "0.1" kgs of "<emission>"
     Examples:
       | mode    | origin      | origin_location        | destination          | destination_location   | emission |
-      | courier | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 2600.0   |
-      | courier | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 2600.0   |
-      | ground  | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 2158.0   |
-      | ground  | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 77297.4  |
-      | air     | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 3671.5   |
-      | air     | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 251631.5 |
+      | courier | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 2.3      |
+      | courier | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 2.3      |
+      | ground  | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 0.3      |
+      | ground  | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 4.1      |
+      | air     | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 0.7      |
+      | air     | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 42.0     |
 
   Scenario Outline: Calculations from everything
     Given a shipment has "weight" of "10.0"
@@ -115,9 +105,9 @@ Feature: Shipment Emissions Calculations
     Then the emission value should be within "0.1" kgs of "<emission>"
     Examples:
       | mode    | origin      | origin_location        | destination          | destination_location   | emission |
-      | courier | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 4100.0   |
-      | courier | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 4100.0   |
-      | ground  | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 4075.2   |
-      | ground  | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 126852.0 |
-      | air     | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 6548.1   |
-      | air     | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 411711.6 |
+      | courier | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 2.6      |
+      | courier | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 2.6      |
+      | ground  | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 0.7      |
+      | ground  | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 6.8      |
+      | air     | 05753       | 43.9968185,-73.1491165 | 05401                | 44.4774456,-73.2163467 | 1.2      |
+      | air     | Lansing, MI | 42.732535,-84.5555347  | Canterbury, Kent, UK | 51.2772689,1.0805173   | 68.7     |

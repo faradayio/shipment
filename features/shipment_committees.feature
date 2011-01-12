@@ -114,7 +114,6 @@ Feature: Shipment Committee Calculations
     And a characteristic "destination" of "Canterbury, Kent, UK"
     And a characteristic "mode.name" of "ground"
     And a characteristic "mapquest_api_key" of "ABC123"
-    # And mapquest determines the distance to be "400 Could not find a data set capable of performing the route."
     When the "origin_location" committee is calculated
     And the "destination_location" committee is calculated
     And the "distance" committee is calculated
@@ -199,7 +198,7 @@ Feature: Shipment Committee Calculations
     And a characteristic "carrier.name" of "FedEx"
     When the "transport_emission_factor" committee is calculated
     Then the committee should have used quorum "from carrier"
-    And the conclusion of the committee should be "1.0"
+    And the conclusion of the committee should be "0.008"
 
   Scenario Outline: Transport emission factor from mode, weight, and adjusted distance
     Given a shipment emitter
@@ -211,9 +210,9 @@ Feature: Shipment Committee Calculations
     And the conclusion of the committee should be "<emission_factor>"
     Examples:
       | mode    | weight | adjusted_distance | emission_factor |
-      | courier | 2.0    | 5.0               | 100.0           |
-      | ground  | 2.0    | 50.0              | 1.0             |
-      | air     | 2.0    | 50.0              | 5.0             |
+      | courier | 2.0    | 5.0               | 0.5             |
+      | ground  | 2.0    | 50.0              | 0.0002          |
+      | air     | 2.0    | 50.0              | 0.002           |
 
   Scenario Outline: Transport emission factor from carrier mode, weight, and adjusted distance
     Given a shipment emitter
@@ -225,9 +224,9 @@ Feature: Shipment Committee Calculations
     And the conclusion of the committee should be "<emission_factor>"
     Examples:
       | carrier_mode    | weight | adjusted_distance | emission_factor |
-      | FedEx courier   | 2.0    | 5.0               | 110.0           |
-      | FedEx ground    | 2.0    | 50.0              | 2.0             |
-      | FedEx air       | 2.0    | 50.0              | 6.0             |
+      | FedEx courier   | 2.0    | 5.0               | 0.2             |
+      | FedEx ground    | 2.0    | 50.0              | 0.0001          |
+      | FedEx air       | 2.0    | 50.0              | 0.001           |
 
   Scenario: Corporate emission factor from default
     Given a shipment emitter
@@ -240,7 +239,7 @@ Feature: Shipment Committee Calculations
     And a characteristic "carrier.name" of "FedEx"
     When the "corporate_emission_factor" committee is calculated
     Then the committee should have used quorum "from carrier"
-    And the conclusion of the committee should be "1500.0"
+    And the conclusion of the committee should be "0.3"
 
   Scenario: Transport emission from weight, adjusted distance, and transport emission factor
     Given a shipment emitter
