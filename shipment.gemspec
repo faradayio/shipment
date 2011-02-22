@@ -54,26 +54,26 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<activerecord>, ["~> 3.0.1"])
       s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_development_dependency(%q<rake>, [">= 0"])
-      s.add_development_dependency(%q<sniff>, ["~> 0.4.7"])
+      s.add_development_dependency(%q<sniff>, ["~> 0.6.0"])
       s.add_runtime_dependency(%q<emitter>, ["~> 0.3.0"])
-      s.add_runtime_dependency(%q<earth>, ["~> 0.3.9"])
+      s.add_runtime_dependency(%q<earth>, ["~> 0.4.0"])
       s.add_runtime_dependency(%q<geokit>, [">= 0"])
     else
       s.add_dependency(%q<activerecord>, ["~> 3.0.1"])
       s.add_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_dependency(%q<rake>, [">= 0"])
-      s.add_dependency(%q<sniff>, ["~> 0.4.7"])
+      s.add_dependency(%q<sniff>, ["~> 0.6.0"])
       s.add_dependency(%q<emitter>, ["~> 0.3.0"])
-      s.add_dependency(%q<earth>, ["~> 0.3.9"])
+      s.add_dependency(%q<earth>, ["~> 0.4.0"])
       s.add_dependency(%q<geokit>, [">= 0"])
     end
   else
     s.add_dependency(%q<activerecord>, ["~> 3.0.1"])
     s.add_dependency(%q<bundler>, ["~> 1.0.0"])
     s.add_dependency(%q<rake>, [">= 0"])
-    s.add_dependency(%q<sniff>, ["~> 0.4.7"])
+    s.add_dependency(%q<sniff>, ["~> 0.6.0"])
     s.add_dependency(%q<emitter>, ["~> 0.3.0"])
-    s.add_dependency(%q<earth>, ["~> 0.3.9"])
+    s.add_dependency(%q<earth>, ["~> 0.4.0"])
     s.add_dependency(%q<geokit>, [">= 0"])
   end
 end
