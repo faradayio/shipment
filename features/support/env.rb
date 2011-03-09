@@ -7,5 +7,8 @@ require 'rspec'
 require 'rspec/expectations'
 require 'cucumber/rspec/doubles'
 
+require 'data_miner'
+DataMiner.logger = Logger.new nil
+
 require 'sniff'
 Sniff.init File.join(File.dirname(__FILE__), '..', '..'), :cucumber => true, :earth => [:shipping]
