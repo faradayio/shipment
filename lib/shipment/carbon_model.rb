@@ -116,8 +116,8 @@ module BrighterPlanet
           committee :distance do
             quorum 'by road', :needs => [:origin_location, :destination_location, :mode, :mapquest_api_key] do |characteristics|
               unless characteristics[:mode].name == 'air'
-                mapquest = MapQuestDirections.new characteristics[:origin_location],
-                                                  characteristics[:destination_location],
+                mapquest = MapQuestDirections.new characteristics[:origin_location].to_s,
+                                                  characteristics[:destination_location].to_s,
                                                   characteristics[:mapquest_api_key]
                 begin
                   mapquest.distance_in_kilometres
@@ -129,8 +129,8 @@ module BrighterPlanet
             
             quorum 'as the crow flies', :needs => [:origin_location, :destination_location] do |characteristics|
               Mapper.distance_between(
-                characteristics[:origin_location],
-                characteristics[:destination_location],
+                characteristics[:origin_location].to_s,
+                characteristics[:destination_location].to_s,
                 :units => :kms)
             end
           end
