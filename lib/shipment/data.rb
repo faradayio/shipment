@@ -13,7 +13,6 @@ module BrighterPlanet
           string  'origin_zip_code'      # For backwards compatability
           string  'destination_zip_code' # For backwards compatability
           float   'distance'
-          string  'mapquest_api_key'
         end
       end
     end

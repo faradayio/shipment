@@ -96,7 +96,6 @@ Feature: Shipment Committee Calculations
     And a characteristic "origin_location" of "<origin>"
     And a characteristic "destination_location" of "<destination>"
     And a characteristic "mode.name" of "<mode>"
-    And a characteristic "mapquest_api_key" of "ABC123"
     And mapquest determines the distance to be "<mapquest_distance>"
     When the "distance" committee is calculated
     Then the committee should have used quorum "by road"
@@ -113,7 +112,6 @@ Feature: Shipment Committee Calculations
     And a characteristic "origin" of "Lansing, MI"
     And a characteristic "destination" of "Canterbury, Kent, UK"
     And a characteristic "mode.name" of "ground"
-    And a characteristic "mapquest_api_key" of "ABC123"
     When the "origin_location" committee is calculated
     And the "destination_location" committee is calculated
     And the "distance" committee is calculated
@@ -125,7 +123,6 @@ Feature: Shipment Committee Calculations
     And a characteristic "origin_location" of "<origin>"
     And a characteristic "destination_location" of "<destination>"
     And a characteristic "mode.name" of "air"
-    And a characteristic "mapquest_api_key" of "ABC123"
     When the "distance" committee is calculated
     Then the committee should have used quorum "as the crow flies"
     And the conclusion of the committee should be "<distance>"

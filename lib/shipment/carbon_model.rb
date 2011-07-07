@@ -2,9 +2,6 @@
 # See LICENSE for details.
 # Contact Brighter Planet for dual-license arrangements.
 
-require File.expand_path('../../vendor/plugin/mapquest/lib/mapquest_directions', File.dirname(__FILE__))
-require 'geokit'
-
 ## Shipment carbon model
 # This model is used by [Brighter Planet](http://brighterplanet.com)'s carbon emission [web service](http://carbon.brighterplanet.com) to estimate the **greenhouse gas emissions of a shipment** (e.g. a FedEx package).
 #
@@ -114,11 +111,9 @@ module BrighterPlanet
           end
             
           committee :distance do
-            quorum 'by road', :needs => [:origin_location, :destination_location, :mode, :mapquest_api_key] do |characteristics|
+            quorum 'by road', :needs => [:origin_location, :destination_location, :mode] do |characteristics|
               unless characteristics[:mode].name == 'air'
-                mapquest = MapQuestDirections.new characteristics[:origin_location].to_s,
-                                                  characteristics[:destination_location].to_s,
-                                                  characteristics[:mapquest_api_key]
+                mapquest = ::MapQuestDirections.new characteristics[:origin_location].to_s, characteristics[:destination_location].to_s
                 begin
                   mapquest.distance_in_kilometres
                 rescue
@@ -150,7 +145,7 @@ module BrighterPlanet
           
           committee :destination_location do
             quorum 'from destination', :needs => :destination do |characteristics|
-              code = Geokit::Geocoders::MultiGeocoder.geocode characteristics[:destination].to_s
+              code = ::Geokit::Geocoders::MultiGeocoder.geocode characteristics[:destination].to_s
               code.ll == ',' ? nil : code.ll
             end
           end
@@ -164,7 +159,7 @@ module BrighterPlanet
           
           committee :origin_location do
             quorum 'from origin', :needs => :origin do |characteristics|
-              code = Geokit::Geocoders::MultiGeocoder.geocode characteristics[:origin].to_s
+              code = ::Geokit::Geocoders::MultiGeocoder.geocode characteristics[:origin].to_s
               code.ll == ',' ? nil : code.ll
             end
           end
@@ -187,17 +182,11 @@ module BrighterPlanet
               3.4 # ASSUMED based on average FedEx air package weight of 7.5 lbs
             end
           end
-
-          committee :mapquest_api_key do
-            quorum 'default' do
-              ENV['MAPQUEST_API_KEY']
-            end
-          end
         end
       end
 
       class Mapper
-        include Geokit::Mappable
+        include ::Geokit::Mappable
       end
     end
   end
