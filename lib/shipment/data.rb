@@ -2,7 +2,7 @@ module BrighterPlanet
   module Shipment
     module Data
       def self.included(base)
-        base.create_table do
+        base.force_schema do
           float   'weight'
           integer 'package_count'
           string  'carrier_name'
