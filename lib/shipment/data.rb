@@ -2,18 +2,16 @@ module BrighterPlanet
   module Shipment
     module Data
       def self.included(base)
-        base.force_schema do
-          float   'weight'
-          integer 'package_count'
-          string  'carrier_name'
-          string  'mode_name'
-          integer 'segment_count'
-          string  'origin'
-          string  'destination'
-          string  'origin_zip_code'      # For backwards compatability
-          string  'destination_zip_code' # For backwards compatability
-          float   'distance'
-        end
+        base.col :weight, :type => :float
+        base.col :package_count, :type => :integer
+        base.col :carrier_name
+        base.col :mode_name
+        base.col :segment_count, :type => :integer
+        base.col :origin
+        base.col :destination
+        base.col :origin_zip_code      # For backwards compatability
+        base.col :destination_zip_code # For backwards compatability
+        base.col :distance, :type => :float
       end
     end
   end

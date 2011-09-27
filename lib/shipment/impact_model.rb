@@ -21,10 +21,10 @@
 # Contributions to this carbon model are actively encouraged and warmly welcomed. This library includes a comprehensive test suite to ensure that your changes do not cause regressions. All changes should include test coverage for new functionality. Please see [sniff](https://github.com/brighterplanet/sniff#readme), our emitter testing framework, for more information.
 module BrighterPlanet
   module Shipment
-    module CarbonModel
+    module ImpactModel
       def self.included(base)
-        base.decide :emission, :with => :characteristics do
-          committee :emission do
+        base.decide :impact, :with => :characteristics do
+          committee :carbon do
             # FIXME TODO deal with timeframe
             quorum 'from transport emission and corporate emission', :needs => [:transport_emission, :corporate_emission] do |characteristics|
               characteristics[:transport_emission] + characteristics[:corporate_emission]
