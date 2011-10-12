@@ -4,6 +4,6 @@ require 'shipment'
 require 'sniff'
 
 class ShipmentRecord < ActiveRecord::Base
-  include Sniff::Emitter
+  include BrighterPlanet::Emitter
   include BrighterPlanet::Shipment
 end
