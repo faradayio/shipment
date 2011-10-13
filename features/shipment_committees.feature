@@ -235,6 +235,6 @@ Feature: Shipment Committee Calculations
   Scenario: Emission from transport emission and corporate emission
     Given a characteristic "transport_emission" of "400.0"
     And a characteristic "corporate_emission" of "20.0"
-    When the "emission" committee reports
+    When the "carbon" committee reports
     Then the committee should have used quorum "from transport emission and corporate emission"
     And the conclusion of the committee should be "420.0"
