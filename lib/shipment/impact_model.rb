@@ -45,7 +45,7 @@ module BrighterPlanet
           end
           
           committee :corporate_emission_factor do
-            quorum 'from carrier', :needs => :carrier, do |characteristics|
+            quorum 'from carrier', :needs => :carrier do |characteristics|
               characteristics[:carrier].corporate_emission_factor
             end
             
