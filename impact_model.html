@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>impact_model.rb</title>
+  <link rel="stylesheet" href="http://jashkenas.github.com/docco/resources/docco.css">
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1667526-20']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+  <style type="text/css">
+    td.docs h1 {
+      margin-top: 0;
+    }
+    @media print {
+      .code pre {
+        white-space: pre-wrap;
+      }
+      .code {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+      .code .highlight {
+        margin-left: 15px;
+        margin-right: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <table cellspacing=0 cellpadding=0>
+  <thead>
+    <tr>
+      <th class=docs><h1>impact_model.rb</h1></th>
+      <th class=code></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr id='section-1'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-1">&#182;</a>
+        </div>
+        <p>Copyright © 2010 Brighter Planet.
+See LICENSE for details.
+Contact Brighter Planet for dual-license arrangements.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre></pre></div>
+      </td>
+    </tr>
+    <tr id='section-Shipment_carbon_model'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-Shipment_carbon_model">&#182;</a>
+        </div>
+        <h1>Shipment carbon model</h1>
+
+<p>This model is used by <a href="http://brighterplanet.com">Brighter Planet</a>&rsquo;s carbon emission <a href="http://carbon.brighterplanet.com">web service</a> to estimate the <strong>greenhouse gas emissions of a shipment</strong> (e.g. a FedEx package).</p>
+
+<h4>Timeframe and date</h4>
+
+<p>The model estimates the emissions that occur during a particular <code>timeframe</code>. To do this it needs to know the shipment&rsquo;s <code>date</code>. For example, if the <code>timeframe</code> is January 2010, a shipment that occurred on January 11 2010 will have emissions but a shipment that occurred on Febraury 1 2010 will not.</p>
+
+<h4>Calculations</h4>
+
+<p>The final estimate is the result of the <strong>calculations</strong> detailed below. These calculations are performed in reverse order, starting with the last calculation listed and finishing with the <code>emission</code> calculation. Each calculation is named according to the value it returns.</p>
+
+<h4>Methods</h4>
+
+<p>To accomodate varying client input, each calculation may have one or more <strong>methods</strong>. These are listed under each calculation in order from most to least preferred. Each method is named according to the values it requires. If any of these values is not available the method will be ignored. If all the methods for a calculation are ignored, the calculation will not return a value. &ldquo;Default&rdquo; methods do not require any values, and so a calculation with a default method will always return a value.</p>
+
+<h4>Standard compliance</h4>
+
+<p>Each method lists any established calculation standards with which it <strong>complies</strong>. When compliance with a standard is requested, all methods that do not comply with that standard are ignored. This means that any values a particular method requires will have been calculated using a compliant method, because those are the only methods available. If any value did not have a compliant method in its calculation then it would be undefined, and the current method would have been ignored.</p>
+
+<h4>Collaboration</h4>
+
+<p>Contributions to this carbon model are actively encouraged and warmly welcomed. This library includes a comprehensive test suite to ensure that your changes do not cause regressions. All changes should include test coverage for new functionality. Please see <a href="https://github.com/brighterplanet/sniff#readme">sniff</a>, our emitter testing framework, for more information.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="k">module</span> <span class="nn">BrighterPlanet</span>
+  <span class="k">module</span> <span class="nn">Shipment</span>
+    <span class="k">module</span> <span class="nn">ImpactModel</span>
+      <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">included</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">decide</span> <span class="ss">:impact</span><span class="p">,</span> <span class="ss">:with</span> <span class="o">=&gt;</span> <span class="ss">:characteristics</span> <span class="k">do</span>
+          <span class="n">committee</span> <span class="ss">:carbon</span> <span class="k">do</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-3'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-3">&#182;</a>
+        </div>
+        <p>FIXME TODO deal with timeframe</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>            <span class="n">quorum</span> <span class="s1">&#39;from transport emission and corporate emission&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:transport_emission</span><span class="p">,</span> <span class="ss">:corporate_emission</span><span class="o">]</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="n">characteristics</span><span class="o">[</span><span class="ss">:transport_emission</span><span class="o">]</span> <span class="o">+</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:corporate_emission</span><span class="o">]</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+          
+          <span class="n">committee</span> <span class="ss">:corporate_emission</span> <span class="k">do</span>
+            <span class="n">quorum</span> <span class="s1">&#39;from package count and corporate emission factor&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:package_count</span><span class="p">,</span> <span class="ss">:corporate_emission_factor</span><span class="o">]</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="n">characteristics</span><span class="o">[</span><span class="ss">:package_count</span><span class="o">]</span> <span class="o">*</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:corporate_emission_factor</span><span class="o">]</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+          
+          <span class="n">committee</span> <span class="ss">:transport_emission</span> <span class="k">do</span>
+            <span class="n">quorum</span> <span class="s1">&#39;from weight, adjusted distance, and transport emission factor&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:weight</span><span class="p">,</span> <span class="ss">:adjusted_distance</span><span class="p">,</span> <span class="ss">:transport_emission_factor</span><span class="o">]</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-4'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-4">&#182;</a>
+        </div>
+        <p>we&rsquo;re assuming that the number of stops, rather than number of packages carried, is limiting factor on local delivery routes</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>              <span class="n">characteristics</span><span class="o">[</span><span class="ss">:weight</span><span class="o">]</span> <span class="o">*</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:adjusted_distance</span><span class="o">]</span> <span class="o">*</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:transport_emission_factor</span><span class="o">]</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+          
+          <span class="n">committee</span> <span class="ss">:corporate_emission_factor</span> <span class="k">do</span>
+            <span class="n">quorum</span> <span class="s1">&#39;from carrier&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="ss">:carrier</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="n">characteristics</span><span class="o">[</span><span class="ss">:carrier</span><span class="o">].</span><span class="n">corporate_emission_factor</span>
+            <span class="k">end</span>
+            
+            <span class="n">quorum</span> <span class="s1">&#39;default&#39;</span> <span class="k">do</span>
+              <span class="no">Carrier</span><span class="o">.</span><span class="n">fallback</span><span class="o">.</span><span class="n">corporate_emission_factor</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+          
+          <span class="n">committee</span> <span class="ss">:transport_emission_factor</span> <span class="k">do</span>
+            <span class="n">quorum</span> <span class="s1">&#39;from carrier mode, weight, and adjusted distance&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:carrier_mode</span><span class="p">,</span> <span class="ss">:weight</span><span class="p">,</span> <span class="ss">:adjusted_distance</span><span class="o">]</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="k">if</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:carrier_mode</span><span class="o">].</span><span class="n">mode_name</span> <span class="o">==</span> <span class="s2">&quot;courier&quot;</span>
+                <span class="n">characteristics</span><span class="o">[</span><span class="ss">:carrier_mode</span><span class="o">].</span><span class="n">transport_emission_factor</span> <span class="o">/</span> <span class="p">(</span><span class="n">characteristics</span><span class="o">[</span><span class="ss">:weight</span><span class="o">]</span> <span class="o">*</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:adjusted_distance</span><span class="o">]</span><span class="p">)</span>
+              <span class="k">else</span>
+                <span class="n">characteristics</span><span class="o">[</span><span class="ss">:carrier_mode</span><span class="o">].</span><span class="n">transport_emission_factor</span>
+              <span class="k">end</span>
+            <span class="k">end</span>
+
+            <span class="n">quorum</span> <span class="s1">&#39;from mode, weight, and adjusted distance&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:mode</span><span class="p">,</span> <span class="ss">:weight</span><span class="p">,</span> <span class="ss">:adjusted_distance</span><span class="o">]</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="k">if</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:mode</span><span class="o">].</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;courier&quot;</span>
+                <span class="n">characteristics</span><span class="o">[</span><span class="ss">:mode</span><span class="o">].</span><span class="n">transport_emission_factor</span> <span class="o">/</span> <span class="p">(</span><span class="n">characteristics</span><span class="o">[</span><span class="ss">:weight</span><span class="o">]</span> <span class="o">*</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:adjusted_distance</span><span class="o">]</span><span class="p">)</span>
+              <span class="k">else</span>
+                <span class="n">characteristics</span><span class="o">[</span><span class="ss">:mode</span><span class="o">].</span><span class="n">transport_emission_factor</span>
+              <span class="k">end</span>
+            <span class="k">end</span>
+            
+            <span class="n">quorum</span> <span class="s1">&#39;from carrier&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="ss">:carrier</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="n">characteristics</span><span class="o">[</span><span class="ss">:carrier</span><span class="o">].</span><span class="n">transport_emission_factor</span>
+            <span class="k">end</span>
+            
+            <span class="n">quorum</span> <span class="s1">&#39;default&#39;</span> <span class="k">do</span>
+              <span class="no">Carrier</span><span class="o">.</span><span class="n">fallback</span><span class="o">.</span><span class="n">transport_emission_factor</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+          
+          <span class="n">committee</span> <span class="ss">:adjusted_distance</span> <span class="k">do</span>
+            <span class="n">quorum</span> <span class="s1">&#39;from distance, route inefficiency factor, and dogleg factor&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:distance</span><span class="p">,</span> <span class="ss">:route_inefficiency_factor</span><span class="p">,</span> <span class="ss">:dogleg_factor</span><span class="o">]</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="n">characteristics</span><span class="o">[</span><span class="ss">:distance</span><span class="o">]</span> <span class="o">*</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:route_inefficiency_factor</span><span class="o">]</span> <span class="o">*</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:dogleg_factor</span><span class="o">]</span>
+            <span class="k">end</span>
+            
+            <span class="n">quorum</span> <span class="s1">&#39;default&#39;</span> <span class="k">do</span>
+              <span class="mi">3219</span> <span class="c1"># ASSUMED: arbitrary</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+          
+          <span class="n">committee</span> <span class="ss">:dogleg_factor</span> <span class="k">do</span>
+            <span class="n">quorum</span> <span class="s1">&#39;from segment count&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="ss">:segment_count</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="k">if</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:segment_count</span><span class="o">]</span> <span class="o">==</span> <span class="mi">1</span>
+                <span class="mi">1</span><span class="o">.</span><span class="mi">0</span>
+              <span class="k">else</span>
+                <span class="mi">1</span><span class="o">.</span><span class="mi">8</span> <span class="c1"># based on our sample FedEx tracking numbers</span>
+              <span class="k">end</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+          
+          <span class="n">committee</span> <span class="ss">:route_inefficiency_factor</span> <span class="k">do</span>
+            <span class="n">quorum</span> <span class="s1">&#39;from mode&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="ss">:mode</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="n">characteristics</span><span class="o">[</span><span class="ss">:mode</span><span class="o">].</span><span class="n">route_inefficiency_factor</span>
+            <span class="k">end</span>
+            
+            <span class="n">quorum</span> <span class="s1">&#39;default&#39;</span> <span class="k">do</span>
+              <span class="no">Carrier</span><span class="o">.</span><span class="n">fallback</span><span class="o">.</span><span class="n">route_inefficiency_factor</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+            
+          <span class="n">committee</span> <span class="ss">:distance</span> <span class="k">do</span>
+            <span class="n">quorum</span> <span class="s1">&#39;by road&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:origin_location</span><span class="p">,</span> <span class="ss">:destination_location</span><span class="p">,</span> <span class="ss">:mode</span><span class="o">]</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="k">unless</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:mode</span><span class="o">].</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;air&#39;</span>
+                <span class="n">mapquest</span> <span class="o">=</span> <span class="o">::</span><span class="no">MapQuestDirections</span><span class="o">.</span><span class="n">new</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:origin_location</span><span class="o">].</span><span class="n">to_s</span><span class="p">,</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:destination_location</span><span class="o">].</span><span class="n">to_s</span>
+                <span class="k">begin</span>
+                  <span class="n">mapquest</span><span class="o">.</span><span class="n">distance_in_kilometres</span>
+                <span class="k">rescue</span>
+                  <span class="kp">nil</span>
+                <span class="k">end</span>
+              <span class="k">end</span>
+            <span class="k">end</span>
+            
+            <span class="n">quorum</span> <span class="s1">&#39;as the crow flies&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:origin_location</span><span class="p">,</span> <span class="ss">:destination_location</span><span class="o">]</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="no">Mapper</span><span class="o">.</span><span class="n">distance_between</span><span class="p">(</span>
+                <span class="n">characteristics</span><span class="o">[</span><span class="ss">:origin_location</span><span class="o">].</span><span class="n">to_s</span><span class="p">,</span>
+                <span class="n">characteristics</span><span class="o">[</span><span class="ss">:destination_location</span><span class="o">].</span><span class="n">to_s</span><span class="p">,</span>
+                <span class="ss">:units</span> <span class="o">=&gt;</span> <span class="ss">:kms</span><span class="p">)</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+          
+          <span class="n">committee</span> <span class="ss">:carrier_mode</span> <span class="k">do</span>
+            <span class="n">quorum</span> <span class="s1">&#39;from carrier and mode&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:carrier</span><span class="p">,</span> <span class="ss">:mode</span><span class="o">]</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="no">CarrierMode</span><span class="o">.</span><span class="n">find_by_carrier_name_and_mode_name</span><span class="p">(</span><span class="n">characteristics</span><span class="o">[</span><span class="ss">:carrier</span><span class="o">].</span><span class="n">name</span><span class="p">,</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:mode</span><span class="o">].</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+          
+          <span class="n">committee</span> <span class="ss">:segment_count</span> <span class="k">do</span>
+            <span class="n">quorum</span> <span class="s1">&#39;default&#39;</span> <span class="k">do</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-5'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-5">&#182;</a>
+        </div>
+        <p>ASSUMED based on the fact that FedEx has a hub-spoke system with central and regional distribution centers so seems reasonable for average package to go through four FedEx facilities</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>              <span class="mi">5</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+          
+          <span class="n">committee</span> <span class="ss">:destination_location</span> <span class="k">do</span>
+            <span class="n">quorum</span> <span class="s1">&#39;from destination&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="ss">:destination</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="n">code</span> <span class="o">=</span> <span class="o">::</span><span class="no">Geokit</span><span class="o">::</span><span class="no">Geocoders</span><span class="o">::</span><span class="no">MultiGeocoder</span><span class="o">.</span><span class="n">geocode</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:destination</span><span class="o">].</span><span class="n">to_s</span>
+              <span class="n">code</span><span class="o">.</span><span class="n">ll</span> <span class="o">==</span> <span class="s1">&#39;,&#39;</span> <span class="p">?</span> <span class="kp">nil</span> <span class="p">:</span> <span class="n">code</span><span class="o">.</span><span class="n">ll</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+
+          <span class="n">committee</span> <span class="ss">:destination</span> <span class="k">do</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-6'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-6">&#182;</a>
+        </div>
+        <p>For backwards compatability</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>            <span class="n">quorum</span> <span class="s1">&#39;from destination zip code&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="ss">:destination_zip_code</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="n">characteristics</span><span class="o">[</span><span class="ss">:destination_zip_code</span><span class="o">]</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+          
+          <span class="n">committee</span> <span class="ss">:origin_location</span> <span class="k">do</span>
+            <span class="n">quorum</span> <span class="s1">&#39;from origin&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="ss">:origin</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="n">code</span> <span class="o">=</span> <span class="o">::</span><span class="no">Geokit</span><span class="o">::</span><span class="no">Geocoders</span><span class="o">::</span><span class="no">MultiGeocoder</span><span class="o">.</span><span class="n">geocode</span> <span class="n">characteristics</span><span class="o">[</span><span class="ss">:origin</span><span class="o">].</span><span class="n">to_s</span>
+              <span class="n">code</span><span class="o">.</span><span class="n">ll</span> <span class="o">==</span> <span class="s1">&#39;,&#39;</span> <span class="p">?</span> <span class="kp">nil</span> <span class="p">:</span> <span class="n">code</span><span class="o">.</span><span class="n">ll</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+
+          <span class="n">committee</span> <span class="ss">:origin</span> <span class="k">do</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-7'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-7">&#182;</a>
+        </div>
+        <p>For backwards compatability</p>
+
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>            <span class="n">quorum</span> <span class="s1">&#39;from origin zip code&#39;</span><span class="p">,</span> <span class="ss">:needs</span> <span class="o">=&gt;</span> <span class="ss">:origin_zip_code</span> <span class="k">do</span> <span class="o">|</span><span class="n">characteristics</span><span class="o">|</span>
+              <span class="n">characteristics</span><span class="o">[</span><span class="ss">:origin_zip_code</span><span class="o">]</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+          
+          <span class="n">committee</span> <span class="ss">:package_count</span> <span class="k">do</span>
+            <span class="n">quorum</span> <span class="s1">&#39;default&#39;</span> <span class="k">do</span>
+              <span class="mi">1</span> <span class="c1"># ASSUMED arbitrary</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+          
+          <span class="n">committee</span> <span class="ss">:weight</span> <span class="k">do</span>
+            <span class="n">quorum</span> <span class="s1">&#39;default&#39;</span> <span class="k">do</span>
+              <span class="mi">3</span><span class="o">.</span><span class="mi">4</span> <span class="c1"># ASSUMED based on average FedEx air package weight of 7.5 lbs</span>
+            <span class="k">end</span>
+          <span class="k">end</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+
+      <span class="k">class</span> <span class="nc">Mapper</span>
+        <span class="kp">include</span> <span class="o">::</span><span class="no">Geokit</span><span class="o">::</span><span class="no">Mappable</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span></pre></div>
+      </td>
+    </tr>
+  </table>
+</div>
+</body>
