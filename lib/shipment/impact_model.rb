@@ -113,20 +113,13 @@ module BrighterPlanet
           committee :distance do
             quorum 'by road', :needs => [:origin_location, :destination_location, :mode] do |characteristics|
               unless characteristics[:mode].name == 'air'
-                mapquest = ::MapQuestDirections.new characteristics[:origin_location].to_s, characteristics[:destination_location].to_s
-                begin
-                  mapquest.distance_in_kilometres
-                rescue
-                  nil
-                end
+                mapquest = ::MapQuestDirections.new characteristics[:origin_location].ll, characteristics[:destination_location].ll
+                mapquest.status.to_i == 0 ? mapquest.distance_in_miles.miles.to(:kilometres) : nil
               end
             end
             
             quorum 'as the crow flies', :needs => [:origin_location, :destination_location] do |characteristics|
-              Mapper.distance_between(
-                characteristics[:origin_location].to_s,
-                characteristics[:destination_location].to_s,
-                :units => :kms)
+              Mapper.distance_between(characteristics[:origin_location].ll, characteristics[:destination_location].ll, :units => :kms)
             end
           end
           
@@ -145,11 +138,11 @@ module BrighterPlanet
           
           committee :destination_location do
             quorum 'from destination', :needs => :destination do |characteristics|
-              code = ::Geokit::Geocoders::MultiGeocoder.geocode characteristics[:destination].to_s
-              code.ll == ',' ? nil : code.ll
+              location = ::Geokit::Geocoders::MultiGeocoder.geocode characteristics[:destination].to_s
+              location.success ? location : nil
             end
           end
-
+          
           committee :destination do
             # For backwards compatability
             quorum 'from destination zip code', :needs => :destination_zip_code do |characteristics|
@@ -159,11 +152,11 @@ module BrighterPlanet
           
           committee :origin_location do
             quorum 'from origin', :needs => :origin do |characteristics|
-              code = ::Geokit::Geocoders::MultiGeocoder.geocode characteristics[:origin].to_s
-              code.ll == ',' ? nil : code.ll
+              location = ::Geokit::Geocoders::MultiGeocoder.geocode characteristics[:origin].to_s
+              location.success ? location : nil
             end
           end
-
+          
           committee :origin do
             # For backwards compatability
             quorum 'from origin zip code', :needs => :origin_zip_code do |characteristics|
@@ -184,7 +177,7 @@ module BrighterPlanet
           end
         end
       end
-
+      
       class Mapper
         include ::Geokit::Mappable
       end
