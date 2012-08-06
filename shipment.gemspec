@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'mapquest_directions'
   s.add_runtime_dependency 'geokit'
   s.add_runtime_dependency 'earth'
-  s.add_runtime_dependency 'emitter', '~>0.11.0'
+  s.add_dependency 'emitter', '~> 1.0.0'
   s.add_development_dependency 'sniff', '~>0.11.3'
   s.add_development_dependency 'sqlite3'
 end
