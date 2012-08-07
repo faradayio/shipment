@@ -2,6 +2,10 @@
 # See LICENSE for details.
 # Contact Brighter Planet for dual-license arrangements.
 
+require 'geokit'
+require 'earth/shipping/carrier'
+require 'earth/shipping/carrier_mode'
+
 ## Shipment carbon model
 # This model is used by [Brighter Planet](http://brighterplanet.com)'s carbon emission [web service](http://carbon.brighterplanet.com) to estimate the **greenhouse gas emissions of a shipment** (e.g. a FedEx package).
 #
@@ -138,7 +142,7 @@ module BrighterPlanet
           
           committee :destination_location do
             quorum 'from destination', :needs => :destination do |characteristics|
-              location = ::Geokit::Geocoders::MultiGeocoder.geocode characteristics[:destination].to_s
+              location = Geokit::Geocoders::MultiGeocoder.geocode characteristics[:destination].to_s
               location.success ? location : nil
             end
           end
@@ -152,7 +156,7 @@ module BrighterPlanet
           
           committee :origin_location do
             quorum 'from origin', :needs => :origin do |characteristics|
-              location = ::Geokit::Geocoders::MultiGeocoder.geocode characteristics[:origin].to_s
+              location = Geokit::Geocoders::MultiGeocoder.geocode characteristics[:origin].to_s
               location.success ? location : nil
             end
           end
@@ -179,7 +183,7 @@ module BrighterPlanet
       end
       
       class Mapper
-        include ::Geokit::Mappable
+        include Geokit::Mappable
       end
     end
   end

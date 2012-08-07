@@ -1,3 +1,6 @@
+require 'earth/shipping/carrier'
+require 'earth/shipping/shipment_mode'
+
 module BrighterPlanet
   module Shipment
     module Relationships

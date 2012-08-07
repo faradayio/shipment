@@ -1,3 +1,8 @@
+require 'rspec/mocks'
+RSpec::Mocks.setup self
+include RSpec::Mocks::ExampleMethods
+require 'geokit'
+
 Given /^mapquest determines the distance in miles to be "([^\"]*)"$/ do |distance|
   if distance.present?
     mockquest = mock MapQuestDirections, :status => 0, :distance_in_miles => distance.to_f
