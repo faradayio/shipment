@@ -2,7 +2,6 @@
 # See LICENSE for details.
 # Contact Brighter Planet for dual-license arrangements.
 
-require 'geokit'
 require 'earth/shipping/carrier'
 require 'earth/shipping/carrier_mode'
 
@@ -117,13 +116,13 @@ module BrighterPlanet
           committee :distance do
             quorum 'by road', :needs => [:origin_location, :destination_location, :mode] do |characteristics|
               unless characteristics[:mode].name == 'air'
-                mapquest = ::MapQuestDirections.new characteristics[:origin_location].ll, characteristics[:destination_location].ll
+                mapquest = ::MapQuestDirections.new characteristics[:origin_location].coordinates.join(','), characteristics[:destination_location].coordinates.join(',')
                 mapquest.status.to_i == 0 ? mapquest.distance_in_miles.miles.to(:kilometres) : nil
               end
             end
             
             quorum 'as the crow flies', :needs => [:origin_location, :destination_location] do |characteristics|
-              Mapper.distance_between(characteristics[:origin_location].ll, characteristics[:destination_location].ll, :units => :kms)
+              Geocoder::Calculations.distance_between(characteristics[:origin_location].coordinates, characteristics[:destination_location].coordinates, :units => :km)
             end
           end
           
@@ -142,8 +141,8 @@ module BrighterPlanet
           
           committee :destination_location do
             quorum 'from destination', :needs => :destination do |characteristics|
-              location = Geokit::Geocoders::MultiGeocoder.geocode characteristics[:destination].to_s
-              location.success ? location : nil
+              # Use [Geocoder](http://www.rubygeocoder.com/) to determine the `destination` location (*lat, lng*).
+              Geocoder.search(characteristics[:destination]).first
             end
           end
           
@@ -156,8 +155,8 @@ module BrighterPlanet
           
           committee :origin_location do
             quorum 'from origin', :needs => :origin do |characteristics|
-              location = Geokit::Geocoders::MultiGeocoder.geocode characteristics[:origin].to_s
-              location.success ? location : nil
+              # Use the [Geocoder](http://www.rubygeocoder.com/) to determine the `origin` location (*lat, lng*).
+              Geocoder.search(characteristics[:origin]).first
             end
           end
           
@@ -180,10 +179,6 @@ module BrighterPlanet
             end
           end
         end
-      end
-      
-      class Mapper
-        include Geokit::Mappable
       end
     end
   end

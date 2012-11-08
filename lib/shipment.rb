@@ -7,7 +7,7 @@ require 'shipment/relationships'
 require 'shipment/summarization'
 
 require 'mapquest_directions'
-require 'geokit'
+require 'geocoder'
 
 module BrighterPlanet
   module Shipment

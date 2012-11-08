@@ -27,20 +27,20 @@ Feature: Shipment Committee Calculations
 
   Scenario Outline: Origin location from geocodeable origin
     Given a characteristic "origin" of address value "<origin>"
-    And the geocoder will encode the origin as "<geocode>"
+    And the geocoder will encode the origin as "<lat_lng>"
     When the "origin_location" committee reports
     Then the committee should have used quorum "from origin"
-    And the conclusion of the committee should have "ll" of "<location>"
+    And the conclusion of the committee should be located at "<location>"
     Examples:
-      | origin                               | geocode                 | location                |
-      | 05753                                | 43.9968185,-73.1491165  | 43.9968185,-73.1491165  |
+      | origin                               | lat_lng                 | location                |
+      | 05753                                | 44.0229305,-73.1450146  | 44.0229305,-73.1450146  |
       | San Francisco, CA                    | 37.7749295,-122.4194155 | 37.7749295,-122.4194155 |
-      | 488 Haight Street, San Francisco, CA | 37.7722302,-122.4303328 | 37.7722302,-122.4303328 |
-      | Canterbury, Kent, UK                 | 51.2772689,1.0805173    | 51.2772689,1.0805173    |
+      | 488 Haight Street, San Francisco, CA | 37.7722537,-122.4302052 | 37.7722537,-122.4302052 |
+      | Canterbury, Kent, UK                 | 51.280233,1.0789089     | 51.280233,1.0789089     |
 
   Scenario: Origin location from non-geocodeable origin
     Given a characteristic "origin" of address value "Bag End, Hobbiton, Westfarthing, The Shire, Eriador, Middle Earth"
-    And the geocoder will fail to encode the origin
+    And the geocoder will encode the origin as ""
     When the "origin_location" committee reports
     Then the conclusion of the committee should be nil
 
@@ -56,20 +56,20 @@ Feature: Shipment Committee Calculations
 
   Scenario Outline: Destination location from geocodeable destination
     Given a characteristic "destination" of address value "<destination>"
-    And the geocoder will encode the destination as "<geocode>"
+    And the geocoder will encode the destination as "<lat_lng>"
     When the "destination_location" committee reports
     Then the committee should have used quorum "from destination"
-    And the conclusion of the committee should have "ll" of "<location>"
+    And the conclusion of the committee should be located at "<location>"
     Examples:
-      | destination                          | geocode                 | location                |
-      | 05753                                | 43.9968185,-73.1491165  | 43.9968185,-73.1491165  |
+      | destination                          | lat_lng                 | location                |
+      | 05753                                | 44.0229305,-73.1450146  | 44.0229305,-73.1450146  |
       | San Francisco, CA                    | 37.7749295,-122.4194155 | 37.7749295,-122.4194155 |
-      | 488 Haight Street, San Francisco, CA | 37.7722302,-122.4303328 | 37.7722302,-122.4303328 |
-      | Canterbury, Kent, UK                 | 51.2772689,1.0805173    | 51.2772689,1.0805173    |
+      | 488 Haight Street, San Francisco, CA | 37.7722537,-122.4302052 | 37.7722537,-122.4302052 |
+      | Canterbury, Kent, UK                 | 51.280233,1.0789089     | 51.280233,1.0789089     |
 
   Scenario: Destination location from non-geocodeable destination
     Given a characteristic "destination" of address value "Bag End, Hobbiton, Westfarthing, The Shire, Eriador, Middle Earth"
-    And the geocoder will fail to encode the destination
+    And the geocoder will encode the destination as ""
     When the "destination_location" committee reports
     Then the conclusion of the committee should be nil
 
@@ -86,9 +86,9 @@ Feature: Shipment Committee Calculations
     And the conclusion of the committee should have "name" of "FedEx ground"
 
   Scenario Outline: Distance by road from locations and mode
-    Given a characteristic "origin" of "origin"
+    Given a characteristic "origin" of "<origin>"
     And the geocoder will encode the origin as "<origin>"
-    And a characteristic "destination" of "destination"
+    And a characteristic "destination" of "<destination>"
     And the geocoder will encode the destination as "<destination>"
     And a characteristic "mode.name" of "<mode>"
     And mapquest determines the distance in miles to be "<mq_dist>"
@@ -98,29 +98,29 @@ Feature: Shipment Committee Calculations
     Then the committee should have used quorum "by road"
     And the conclusion of the committee should be "<distance>"
     Examples:
-      | origin | destination | mode    | mq_dist | distance |
-      | 43,-73 | 43.-73      | ground  | 0.0     | 0.0      |
-      | 43,-73 | 43.1,-73    | ground  | 36.0    | 57.93638 |
-      | 43,-73 | 43,-73      | courier | 0.0     | 0.0      |
-      | 43,-73 | 43.1,-73    | courier | 36.0    | 57.93638 |
+      | origin     | destination | mode    | mq_dist | distance |
+      | 43.0,-73.0 | 43.0,-73.0  | ground  | 0.0     | 0.0      |
+      | 43.0,-73.0 | 43.1,-73.0  | ground  | 38.0    | 61.15507 |
+      | 43.0,-73.0 | 43.0,-73.0  | courier | 0.0     | 0.0      |
+      | 43.0,-73.0 | 43.1,-73.0  | courier | 38.0    | 61.15507 |
 
   Scenario: Distance by road from undriveable locations and mode
     Given a characteristic "origin" of "Lansing, MI"
     And the geocoder will encode the origin as "42.732535,-84.5555347"
     And a characteristic "destination" of "Canterbury, Kent, UK"
-    And the geocoder will encode the destination as "51.2772689,1.0805173"
+    And the geocoder will encode the destination as "51.280233,1.0789089"
     And a characteristic "mode.name" of "ground"
     And mapquest determines the distance in miles to be ""
     When the "origin_location" committee reports
     And the "destination_location" committee reports
     And the "distance" committee reports
     Then the committee should have used quorum "as the crow flies"
-    And the conclusion of the committee should be "6192.60039"
+    And the conclusion of the committee should be "6186.74309"
 
   Scenario Outline: Distance as the crow flies from locations and mode
-    Given a characteristic "origin" of "origin"
+    Given a characteristic "origin" of "<origin>"
     And the geocoder will encode the origin as "<origin>"
-    And a characteristic "destination" of "destination"
+    And a characteristic "destination" of "<destination>"
     And the geocoder will encode the destination as "<destination>"
     And a characteristic "mode.name" of "air"
     When the "origin_location" committee reports
@@ -130,19 +130,19 @@ Feature: Shipment Committee Calculations
     And the conclusion of the committee should be "<distance>"
     Examples:
       | origin                 | destination            | distance   |
-      | 43.9968185,-73.1491165 | 44.4774456,-73.2163467 | 53.75967   |
-      | 42.732535,-84.5555347  | 51.2772689,1.0805173   | 6192.60039 |
+      | 43.99786,  -73.146935  | 44.477208, -73.216204  |   53.58596 |
+      | 42.7325346,-84.5554643 | 51.2773103,  1.0804506 | 6186.98385 |
   
   Scenario: Distance as the crow flies from locations
-    Given a characteristic "origin" of "origin"
-    And the geocoder will encode the origin as "43.9968185,-73.1491165"
-    And a characteristic "destination" of "destination"
-    And the geocoder will encode the destination as "44.4774456,-73.2163467"
+    Given a characteristic "origin" of "Middlebury, VT"
+    And the geocoder will encode the origin as "44.0153291,-73.1673508"
+    And a characteristic "destination" of "Burlington, VT"
+    And the geocoder will encode the destination as "44.4758825,-73.212072"
     When the "origin_location" committee reports
     And the "destination_location" committee reports
     And the "distance" committee reports
     Then the committee should have used quorum "as the crow flies"
-    And the conclusion of the committee should be "53.75967"
+    And the conclusion of the committee should be "51.33495"
 
   Scenario: Route inefficiency factor from default
     When the "route_inefficiency_factor" committee reports
