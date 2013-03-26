@@ -7,10 +7,13 @@ require 'shipment/relationships'
 require 'shipment/summarization'
 
 require 'mapquest_directions'
-require 'geocoder'
 
 module BrighterPlanet
   module Shipment
     extend BrighterPlanet::Emitter
+
+    class << self
+      attr_accessor :geocoder
+    end
   end
 end

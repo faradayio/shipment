@@ -122,7 +122,7 @@ module BrighterPlanet
             end
             
             quorum 'as the crow flies', :needs => [:origin_location, :destination_location] do |characteristics|
-              Geocoder::Calculations.distance_between(characteristics[:origin_location].coordinates, characteristics[:destination_location].coordinates, :units => :km)
+              Shipment.geocoder.distance_between characteristics[:origin_location], characteristics[:destination_location]
             end
           end
           
@@ -141,8 +141,7 @@ module BrighterPlanet
           
           committee :destination_location do
             quorum 'from destination', :needs => :destination do |characteristics|
-              # Use [Geocoder](http://www.rubygeocoder.com/) to determine the `destination` location (*lat, lng*).
-              Geocoder.search(characteristics[:destination]).first
+              Shipment.geocoder.geocode characteristics[:destination]
             end
           end
           
@@ -155,8 +154,7 @@ module BrighterPlanet
           
           committee :origin_location do
             quorum 'from origin', :needs => :origin do |characteristics|
-              # Use the [Geocoder](http://www.rubygeocoder.com/) to determine the `origin` location (*lat, lng*).
-              Geocoder.search(characteristics[:origin]).first
+              Shipment.geocoder.geocode characteristics[:origin]
             end
           end
           
