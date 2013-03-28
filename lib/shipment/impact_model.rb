@@ -116,7 +116,7 @@ module BrighterPlanet
           committee :distance do
             quorum 'by road', :needs => [:origin_location, :destination_location, :mode] do |characteristics|
               unless characteristics[:mode].name == 'air'
-                mapquest = ::MapQuestDirections.new characteristics[:origin_location].coordinates.join(','), characteristics[:destination_location].coordinates.join(',')
+                mapquest = ::MapQuestDirections.new characteristics[:origin_location].values_at(:latitude, :longitude).join(','), characteristics[:destination_location].values_at(:latitude, :longitude).join(',')
                 mapquest.status.to_i == 0 ? mapquest.distance_in_miles.miles.to(:kilometres) : nil
               end
             end
