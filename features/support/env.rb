@@ -7,7 +7,12 @@ Sniff.init File.expand_path('../../..', __FILE__),
 
 require 'geocoder'
 class GeocoderWrapper
-  def geocode(input)
+  def geocode(input, country = 'US')
+    if input.is_a?(String)
+      input = input + " #{country}"
+    else
+      input[:country] ||= country
+    end
     if res = ::Geocoder.search(input).first
       {
         latitude:  res.coordinates[0],

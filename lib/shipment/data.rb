@@ -11,6 +11,7 @@ module BrighterPlanet
         base.col :destination
         base.col :origin_zip_code      # For backwards compatability
         base.col :destination_zip_code # For backwards compatability
+        base.col :country_iso_3166_code
         base.col :distance, :type => :float
       end
     end

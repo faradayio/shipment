@@ -140,8 +140,8 @@ module BrighterPlanet
           end
           
           committee :destination_location do
-            quorum 'from destination', :needs => :destination do |characteristics|
-              Shipment.geocoder.geocode characteristics[:destination]
+            quorum 'from destination', :needs => [:destination, :country] do |characteristics|
+              Shipment.geocoder.geocode characteristics[:destination], characteristics[:country].iso_3166_code
             end
           end
           
@@ -153,8 +153,8 @@ module BrighterPlanet
           end
           
           committee :origin_location do
-            quorum 'from origin', :needs => :origin do |characteristics|
-              Shipment.geocoder.geocode characteristics[:origin]
+            quorum 'from origin', :needs => [:origin, :country] do |characteristics|
+              Shipment.geocoder.geocode characteristics[:origin], characteristics[:country].iso_3166_code
             end
           end
           
@@ -176,6 +176,11 @@ module BrighterPlanet
               3.4 # ASSUMED based on average FedEx air package weight of 7.5 lbs
             end
           end
+
+          #### Country
+          # *The [country](http://data.brighterplanet.com/countries) in which the trip occurred.*
+          #
+          # Use client input, if available.
         end
       end
     end
