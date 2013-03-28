@@ -17,7 +17,7 @@ class GeocoderWrapper
   end
 
   def distance_between(origin, destination)
-    Geocoder::Calculations.distance_between origin.values_at(:latitude, :longitude).join(','), destination.values_at(:latitude, :longitude).join(','), :units => :km
+    Geocoder::Calculations.distance_between origin.values_at(:latitude, :longitude), destination.values_at(:latitude, :longitude), :units => :km
   end
 end
 BrighterPlanet::Shipment.geocoder = GeocoderWrapper.new
